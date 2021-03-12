@@ -1,86 +1,95 @@
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <string.h>
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <sys/time.h>
-#include <sys/ioctl.h>
-#include <iostream>
+#include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <limits.h>
-#define PORT 18000
-#define SA struct sockaddr
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/select.h>
+#include <iostream>
+#include <fcntl.h>
 
-typedef struct sockaddr_in SA_IN;
+void error_handling(std::string);
 
-int main(int ac, char **av)
+int main(int argc, char **argv)
 {
-	int servfd, clientfd;
-	struct sockaddr_in servaddr;
-	uint8_t buff[1024];
-	uint8_t recvline[1024];
-	std::string str;
-	
-	//Create the server fd
-	if((servfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-	{
-		std::cerr << "Socket error" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	printf("servfd = %d\n", servfd);
-	
-	servaddr.sin_family = AF_INET; // Internet address
-	servaddr.sin_addr.s_addr = htonl(INADDR_ANY); // Server will respond to anything
-	servaddr.sin_port = htons(PORT); // Server will listen to this port
-	
-	if((bind(servfd, (SA *)&servaddr, sizeof(servaddr))) < 0)
-	{
-		std::cerr << "Bind error" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	
-	if ((listen(servfd, 100)) < 0)
-	{
-		std::cerr << "Listen error" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	for ( ; ; )
-	{
-		struct sockaddr_in addr;
-		int	addr_size = sizeof(SA_IN);
-		SA_IN client_addr;
+	int serv_sock, clnt_sock;
+	struct sockaddr_in serv_adr, clnt_adr;
+	struct timeval timeout;
+	fd_set reads, cpy_reads;
 
-		
-		// Accept wait untill a connection arrives, it returns a fd to the connection.
-		clientfd = accept(servfd, (SA *)&client_addr, (socklen_t*)&addr_size); 
-		// Both NULL params allow you to get the address of whoever connected
-		if (clientfd == -1)
-			write(1, "clientfd error\n", 16);
-		std::cout << std::endl;
-		connect(clientfd, (SA*)&servaddr, addr_size);	
-		fcntl(clientfd, F_SETFL, O_NONBLOCK);
-		write(clientfd, "Bonjour bienvenue\r\n", strlen("Bonjour bienvenue\r\n"));
-		//Read what the client sent and put it in str
+	socklen_t adr_sz;
+	int fd_max, str_len, fd_num, i;
+	char buf[1024];
+	if (argc != 2) {
+		printf("Usage: %s <port>\n", argv[0]);
+		exit(1);
+	}
 
-		char str_recv[1024];
-		int msg_size = 0;
-		int check = 0;
-		size_t n;
-		while ((n = read(clientfd, str_recv, 1023)) > 0)
+	/*Create server's FD*/
+	serv_sock=socket(AF_INET, SOCK_STREAM, 0);
+	memset(&serv_adr, 0, sizeof(serv_adr));
+	serv_adr.sin_family=AF_INET; 
+	/*Internet address*/
+	serv_adr.sin_addr.s_addr=htonl(INADDR_ANY); 
+	/*Specify that server will respond to any address*/
+	serv_adr.sin_port=htons(atoi(argv[1])); 
+	/*Server will listen to this port*/
+
+	if (bind(serv_sock, (struct sockaddr*) &serv_adr, sizeof(serv_adr)) == -1)
+		error_handling("bind() error");
+	if (listen(serv_sock, 5) == -1)
+		error_handling("listen() error");
+
+	/*Set the fd set*/
+	FD_ZERO(&reads);
+	FD_SET(serv_sock, &reads);
+	fd_max=serv_sock;
+
+	while (1)
+	{
+		cpy_reads=reads;
+		timeout.tv_sec=5;
+		timeout.tv_usec=5000;
+
+		if((fd_num=select(fd_max+1, &cpy_reads, 0 ,0, &timeout)) == -1)
+			break;
+		if (fd_num == 0)
+			continue;
+		for (i = 0; i < fd_max + 1; i++)
 		{
-			msg_size += n;
-			if (msg_size > 1024 -1 || str_recv[msg_size - 1] == '\n')
-				break;
-		}
-		write(1, str_recv, strlen(str_recv));
-		str_recv[msg_size -1] = 0;
-		if (n < 0)
-		{
-			std::cerr << "Read error" << std::endl;
-			exit(EXIT_FAILURE);
+			fcntl(i, F_SETFL, O_NONBLOCK);
+			if (FD_ISSET(i, &cpy_reads))
+			{
+				if (i==serv_sock)
+				{
+					adr_sz=sizeof(clnt_adr);
+					clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_adr, &adr_sz);
+					FD_SET(clnt_sock, &reads);
+					write(clnt_sock, "Bonjour, bienvenue.\n", strlen("Bonjour, bienvenue.\n"));
+					if (fd_max < clnt_sock)
+						fd_max=clnt_sock;
+				}
+				else
+				{
+					str_len = read(i, buf, 1024);
+					if (str_len == 0)
+					{
+						FD_CLR(i, &reads);
+						close(i);
+					}
+					else
+						write(1, buf, str_len);
+				}
+			}
 		}
 	}
+	close(serv_sock);
 	return 0;
+}
+
+void error_handling(std::string str)
+{
+	std::cerr << str << std::endl; 
+	exit(1);
 }
