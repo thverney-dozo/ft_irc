@@ -13,8 +13,8 @@
 
 void 	error_handling(std::string);
 int     setup_server(int ac, char **av);
-void    *handle_connection(int serv_sock, std::vector<Client*> *clients);
-int     accept_connection(int serv_socket, std::vector<Client*> *clients);
+void    *handle_connection(int serv_sock, std::vector<Client*> *clients, std::string password);
+int     accept_connection(int serv_socket, std::vector<Client*> *clients, std::string password);
 int		ft_strlen(const char *str);
 
 int 	main(int argc, char **argv)
@@ -24,7 +24,8 @@ int 	main(int argc, char **argv)
 	std::vector<Client*> clients;
 	
 	serv_sock = setup_server(argc, argv);
-	handle_connection(serv_sock, &clients);
+	std::string password = argv[2];
+	handle_connection(serv_sock, &clients, password);
 	close(serv_sock);
 
 	return 0;
@@ -35,7 +36,7 @@ int     setup_server(int ac, char **argv)
 	int serv_sock;
 	struct sockaddr_in serv_adr;
 
-	if (ac != 2){
+	if (ac != 3){
 		std::cout << "Usage: " << argv[0] << " <port>"<< std::endl;
 		exit(1);
 	}
@@ -57,13 +58,14 @@ int     setup_server(int ac, char **argv)
 	return (serv_sock);
 }
 
-void    *handle_connection(int serv_sock, std::vector<Client*> *clients)
+void    *handle_connection(int serv_sock, std::vector<Client*> *clients, std::string password)
 {
 	struct timeval timeout;
 	fd_set reads, cpy_reads;
 	int fd_max, fd_num;
 	char buf[1024];
 	int client_nb = 0;
+	
 	/*Set the fd set*/
 	FD_ZERO(&reads);
 	FD_SET(serv_sock, &reads);
@@ -85,13 +87,15 @@ void    *handle_connection(int serv_sock, std::vector<Client*> *clients)
 			{
 				if (i == serv_sock)
 				{
-					int clnt_sock = accept_connection(serv_sock, clients);
-					FD_SET(clnt_sock, &reads);
-					write(clnt_sock, "Bonjour, bienvenue.\n", strlen("Bonjour, bienvenue.\n"));
-					std::cout << "[Client connected]" << std::endl;
-					write(clnt_sock, "Enter Nickname: ", strlen("Enter Nickname: "));
-					if (fd_max < clnt_sock)
-						fd_max = clnt_sock;
+					int clnt_sock = accept_connection(serv_sock, clients, password);
+					if (clnt_sock != -1)
+					{
+						FD_SET(clnt_sock, &reads);
+						std::cout << "[Client connected]" << std::endl;
+						write(clnt_sock, "Please enter Nickname: ", ft_strlen("Please enter Nickname: "));
+						if (fd_max < clnt_sock)
+							fd_max = clnt_sock;
+					}
 				}
 				else
 				{
@@ -113,6 +117,7 @@ void    *handle_connection(int serv_sock, std::vector<Client*> *clients)
 					}
 					else
 					{
+						buf[str_len - 1] = '\0';
 						std::vector<Client*>::iterator ite = clients->end();
 						for (std::vector<Client*>::iterator it = clients->begin(); it != ite; ++it) // find my client
 						{
@@ -127,25 +132,45 @@ void    *handle_connection(int serv_sock, std::vector<Client*> *clients)
 									write(i, new_name.c_str(), ft_strlen(new_name.c_str()));
 									write(i, "\n", 1);
 								}
-								break;
+								//need to check commands with a else if
+								else
+								{
+									std::string name = (*it)->getName();
+									write(serv_sock, name.c_str(), name.size());
+									write(serv_sock, ": ", 2);
+									write(serv_sock, buf, ft_strlen(buf));
+									write(serv_sock, "\n", 1);
+								}
 							}
 						}
 					}
 					memset(buf, 0, 1024);
 				}
 			}
+			// Here we will read serv_sock once data is written on it, and we will re write it on clients
+			//Only if clients wishper to each other or are in the same chanel
 		}
 	}
 	return NULL;
 }
 
-int     accept_connection(int serv_sock, std::vector<Client*> *clients)
+int     accept_connection(int serv_sock, std::vector<Client*> *clients, std::string password)
 {
 	struct sockaddr_in clnt_adr;
 	socklen_t adr_sz = sizeof(clnt_adr);
 	int clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_adr, &adr_sz);
+	char buf[1024];
 
     Client *new_client = new Client(clnt_sock, clnt_adr, adr_sz);
+	write(clnt_sock, "Please enter the server password\n", ft_strlen("Please enter the server password\n"));
+	if (new_client->getPass(password, clnt_sock) == 1)
+		write(clnt_sock, "Succesfully connected\n", ft_strlen("Successfully connected\n"));
+	else
+	{
+		write(clnt_sock, "Wrong password, connection refused.\n", ft_strlen("Wrong password, connection refused.\n"));
+		close(clnt_sock);
+		return -1;
+	}
 	clients->push_back(new_client);
 
 	return (clnt_sock);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aeoithd <aeoithd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/15 22:20:45 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/16 03:42:04 by aeoithd          ###   ########.fr       */
+/*   Updated: 2021/03/16 11:58:36 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ class   Client
         void                setName(std::string &name);
         void                setStat(bool is_set);
         void                clear_info();
+		int                   getPass(std::string password, int clnt_sock);
 };
 
 Client::Client() : fd(), addr(), adr_sz(), nickname("noName"), stat(false)
@@ -88,4 +89,18 @@ void    Client::clear_info()
         std::string         nickname;
         bool                stat; // client has named himself;
 }
+
+int Client::getPass(std::string password, int clnt_sock)
+{
+	char tmp[1024];
+	int charread;
+	
+	charread = read(clnt_sock, tmp, 1024);
+	tmp[charread - 1] = '\0';
+	std::string marre = tmp;
+	if (!password.compare(marre))
+		return 1;
+	return 0;
+}
+
 #endif
