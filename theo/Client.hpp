@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/15 22:20:45 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/16 15:32:08 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/03/16 16:14:18 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,6 @@ int Client::getPass(std::string password, int clnt_sock, char tmp[1024])
 	int charread;
 	
 	std::string marre = tmp;
-	std::cout << "|" << marre << "|" << "\n" << "|"<< password << "|" << std::endl;
 	if (password == tmp)
 		return 1;
 	return 0;
