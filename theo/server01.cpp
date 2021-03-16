@@ -92,7 +92,7 @@ void    *handle_connection(int serv_sock, std::vector<Client*> *clients, std::st
 					{
 						FD_SET(clnt_sock, &reads);
 						std::cout << "[Client connected]" << std::endl;
-						write(clnt_sock, "Please enter Nickname: ", ft_strlen("Please enter Nickname: "));
+						write(clnt_sock, "Please enter the server password\n", ft_strlen("Please enter the server password\n"));
 						if (fd_max < clnt_sock)
 							fd_max = clnt_sock;
 					}
@@ -122,7 +122,23 @@ void    *handle_connection(int serv_sock, std::vector<Client*> *clients, std::st
 						for (std::vector<Client*>::iterator it = clients->begin(); it != ite; ++it) // find my client
 						{
 							if (i == (*it)->getFd()) {
+								if ((*it)->getPass() == false)
+								{
+									if ((*it)->getPass(password, (*it)->getFd(), buf) == 1)
+									{
+										write((*it)->getFd(), "Succesfully connected\n", ft_strlen("Successfully connected\n"));
+										(*it)->setPass(true);
+										break ;
+									}
+									else
+									{
+										write((*it)->getFd(), "Wrong password, connection refused.\n", ft_strlen("Wrong password, connection refused.\n"));
+										close((*it)->getFd());
+										break ;
+									}
+								}
 								if((*it)->getStat() == false) {  // has my client named himself
+									write(i, "Please enter Nickname: ", ft_strlen("Please enter Nickname: "));
 									std::string new_name(buf);
 									(*it)->setName(new_name);
 									(*it)->setStat(true);
@@ -136,10 +152,10 @@ void    *handle_connection(int serv_sock, std::vector<Client*> *clients, std::st
 								else
 								{
 									std::string name = (*it)->getName();
-									write(serv_sock, name.c_str(), name.size());
-									write(serv_sock, ": ", 2);
-									write(serv_sock, buf, ft_strlen(buf));
-									write(serv_sock, "\n", 1);
+									write(1, name.c_str(), name.size());
+									write(1, ": ", 2);
+									write(1, buf, ft_strlen(buf));
+									write(1, "\n", 1);
 								}
 							}
 						}
@@ -162,15 +178,6 @@ int     accept_connection(int serv_sock, std::vector<Client*> *clients, std::str
 	char buf[1024];
 
     Client *new_client = new Client(clnt_sock, clnt_adr, adr_sz);
-	write(clnt_sock, "Please enter the server password\n", ft_strlen("Please enter the server password\n"));
-	if (new_client->getPass(password, clnt_sock) == 1)
-		write(clnt_sock, "Succesfully connected\n", ft_strlen("Successfully connected\n"));
-	else
-	{
-		write(clnt_sock, "Wrong password, connection refused.\n", ft_strlen("Wrong password, connection refused.\n"));
-		close(clnt_sock);
-		return -1;
-	}
 	clients->push_back(new_client);
 
 	return (clnt_sock);
