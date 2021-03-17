@@ -10,157 +10,53 @@
 #include <fcntl.h>
 #include <vector>
 #include "Client.hpp"
+#include "Server.hpp"
 
-void 	error_handling(std::string);
-int     setup_server(int ac, char **av);
-void    *handle_connection(int serv_sock, std::vector<Client*> *clients, std::string password);
-int     accept_connection(int serv_socket, std::vector<Client*> *clients, std::string password);
-int		ft_strlen(const char *str);
+void	init_bin_args(int argc, char *bin);
+void    *handle_connection(Server *server);
 
 int 	main(int argc, char **argv)
 {
-	int serv_sock;
-	// std::vector<Client*> *clients = new std::vector<Client*>;
-	std::vector<Client*> clients;
-	
-	serv_sock = setup_server(argc, argv);
-	std::string password = argv[2];
-	handle_connection(serv_sock, &clients, password);
-	close(serv_sock);
+	init_bin_args(argc, argv[0]);
+
+	Server server(argv[1], argv[2]); // all setup in the construction
+
+	handle_connection(&server);
+	close(server.getServSock());
 
 	return 0;
 }
 
-int     setup_server(int ac, char **argv)
+void    *handle_connection(Server *server)
 {
-	int serv_sock;
-	struct sockaddr_in serv_adr;
-
-	if (ac != 3){
-		std::cout << "Usage: " << argv[0] << " <port>"<< std::endl;
-		exit(1);
-	}
-	serv_sock = socket(AF_INET, SOCK_STREAM, 0); 	// Create server's FD
-	if (serv_sock < 0) 
-		error_handling("ERROR opening socket");
-		int enable = 1;
-	if (setsockopt(serv_sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
-		error_handling("setsockopt(SO_REUSEADDR) failed");
-	memset(&serv_adr, 0, sizeof(serv_adr));
-	serv_adr.sin_family = AF_INET; 					// Internet address
-	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);	// Specify that server will respond to any address
-	serv_adr.sin_port = htons(atoi(argv[1])); 		// Server will listen to this port
-	
-	if (bind(serv_sock, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
-		error_handling("bind() error");
-	if (listen(serv_sock, 5) == -1)
-		error_handling("listen() error");
-	return (serv_sock);
-}
-
-void    *handle_connection(int serv_sock, std::vector<Client*> *clients, std::string password)
-{
-	struct timeval timeout;
-	fd_set reads, cpy_reads;
-	int fd_max, fd_num;
-	char buf[1024];
-	int client_nb = 0;
-	
-	/*Set the fd set*/
-	FD_ZERO(&reads);
-	FD_SET(serv_sock, &reads);
-	fd_max = serv_sock;
+	int nb_Of_Fd;
 
 	while (1)
 	{
-		cpy_reads = reads;
-		timeout.tv_sec = 5;
-		timeout.tv_usec = 5000;
-		if((fd_num = select(fd_max + 1, &cpy_reads, 0 , 0, &timeout)) == -1)
+		if((nb_Of_Fd = server->detection_select()) == -1)
 			break;
-		if (fd_num == 0)
+		if (nb_Of_Fd == 0)
 			continue;
-		for (int i = 0; i < fd_max + 1; i++)
+		for (int i = 0; i < server->getFdMax() + 1; i++)
 		{
 			fcntl(i, F_SETFL, O_NONBLOCK);
-			if (FD_ISSET(i, &cpy_reads))
+			if (FD_ISSET(i, server->getCpyReads_addr()))
 			{
-				if (i == serv_sock)
+				if (i == server->getServSock())
 				{
-					int clnt_sock = accept_connection(serv_sock, clients, password);
-					if (clnt_sock != -1)
-					{
-						FD_SET(clnt_sock, &reads);
-						std::cout << "[Client connected]" << std::endl;
-						write(clnt_sock, "Please enter the server password\n", ft_strlen("Please enter the server password\n"));
-						if (fd_max < clnt_sock)
-							fd_max = clnt_sock;
-					}
+					server->connexion();
 				}
 				else
 				{
 					int str_len;
-					if ((str_len = read(i, buf, 1024)) == 0)
+					if ((str_len = read(i, server->getBuf(), 1024)) == 0)
 					{
-						FD_CLR(i, &reads);
-						close(i);
-						std::cout << "[Client disconnected] (";
-						std::vector<Client*>::iterator ite = clients->end();
-						for (std::vector<Client*>::iterator it = clients->begin(); it != ite; ++it) // find my client
-						{
-							if (i == (*it)->getFd()) {
-								std::cout << (*it)->getName() << ")" << std::endl;
-								clients->erase(it);
-								break;
-							}
-						}
+						server->deconnexion(i);
 					}
 					else
 					{
-						buf[str_len - 1] = '\0';
-						std::vector<Client*>::iterator ite = clients->end();
-						for (std::vector<Client*>::iterator it = clients->begin(); it != ite; ++it) // find my client
-						{
-							if (i == (*it)->getFd() && i != serv_sock) {
-								if ((*it)->getPass() == false )
-								{
-									if ((*it)->getPass(password, (*it)->getFd(), buf) == 1)
-									{
-										write((*it)->getFd(), "Succesfully connected\n", ft_strlen("Successfully connected\n"));
-										(*it)->setPass(true);
-										write(i, "Please enter Nickname: ", ft_strlen("Please enter Nickname: "));
-										break ;
-									}
-									else
-									{
-										write((*it)->getFd(), "Wrong password, connection refused.\n", ft_strlen("Wrong password, connection refused.\n"));
-										write((*it)->getFd(), "Please try again.\n", ft_strlen("Please try again.\n"));
-										break ;
-									}
-								}
-								if((*it)->getStat() == false) {  // has my client named himself
-									std::string new_name(buf);
-									(*it)->setName(new_name);
-									(*it)->setStat(true);
-									new_name.clear();
-									new_name = (*it)->getName();
-									write(i, "Welcome ", strlen("Welcome "));
-									write(i, new_name.c_str(), ft_strlen(new_name.c_str()));
-									write(i, "\n", 1);
-								}
-								//need to check commands with a else if
-								else
-								{
-									std::string name = (*it)->getName();
-									write(1, name.c_str(), name.size());
-									write(1, ": ", 2);
-									write(1, buf, ft_strlen(buf));
-									write(1, "\n", 1);
-								}
-							}
-						}
+						server->receiveFromClient(i, str_len);
 					}
-					memset(buf, 0, 1024);
 				}
 			}
 			// Here we will read serv_sock once data is written on it, and we will re write it on clients
@@ -170,32 +66,11 @@ void    *handle_connection(int serv_sock, std::vector<Client*> *clients, std::st
 	return NULL;
 }
 
-int     accept_connection(int serv_sock, std::vector<Client*> *clients, std::string password)
+void	init_bin_args(int ac, char *av)
 {
-	struct sockaddr_in clnt_adr;
-	socklen_t adr_sz = sizeof(clnt_adr);
-	int clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_adr, &adr_sz);
-	char buf[1024];
-
-	if(clnt_sock != -1)
+	if (ac != 3)
 	{
-  	  Client *new_client = new Client(clnt_sock, clnt_adr, adr_sz);
-	  clients->push_back(new_client);
-	   return (clnt_sock);
+		std::cout << "Usage: " << av << " <port>"<< std::endl;
+		exit(1);
 	}
-	return -1;
-}
-
-void error_handling(std::string str)
-{
-	std::cerr << str << std::endl; 
-	exit(1);
-}
-
-int		ft_strlen(const char *str)
-{
-	int i = 0;
-	while (str[i])
-		i++;
-	return i;
 }
