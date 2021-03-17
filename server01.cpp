@@ -43,24 +43,16 @@ void    *handle_connection(Server *server)
 			if (FD_ISSET(i, server->getCpyReads_addr()))
 			{
 				if (i == server->getServSock())
-				{
 					server->connexion();
-				}
 				else
 				{
 					int str_len;
 					if ((str_len = read(i, server->getBuf(), 1024)) == 0)
-					{
 						server->deconnexion(i);
-					}
 					else
-					{
 						server->receiveFromClient(i, str_len);
-					}
 				}
 			}
-			// Here we will read serv_sock once data is written on it, and we will re write it on clients
-			//Only if clients wishper to each other or are in the same chanel
 		}
 	}
 	return NULL;
@@ -70,7 +62,7 @@ void	init_bin_args(int ac, char *av)
 {
 	if (ac != 3)
 	{
-		std::cout << "Usage: " << av << " <port>"<< std::endl;
+		std::cout << "Usage: " << av << " <port>"<< "<password>" << std::endl;
 		exit(1);
 	}
 }

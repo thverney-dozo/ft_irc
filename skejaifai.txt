@@ -1,0 +1,5 @@
+-Ajout d'une fonction fdwrite dans la classe server pr facilier l'ecriture de messages aux clients;
+-Le pseudo s'affiche maintenant dans la console avant le message que tu vas ecrire, jtrouvais ca triste le vide ( oui je sais ca sert a R );
+-Commencement parsing pour les commandes server, va falloir qu'on se mette d'accord sur comment faire pr les implementer avant de s'y mettre vraiment;
+-Quelques rectifications par ci par la pour que ca compile avec les flags;
+-Leger clean du code, jai enlever les {} quand y a qu'une instruction parce que c moche et que ca me crispe et jai raccourcis certaines fonctions;

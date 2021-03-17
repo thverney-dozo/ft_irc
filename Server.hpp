@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aeoithd <aeoithd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/17 01:21:23 by aeoithd          ###   ########.fr       */
+/*   Updated: 2021/03/17 10:40:59 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ class Server
         void    password_step(Client *client, int fd_i);
         void    naming_step(Client *client, int fd_i);
 
-
+		void	fdwrite(int fd, std::string str);
         void    resetBuf();
         void    check_error(int ret, std::string const &str);
 
@@ -131,7 +131,7 @@ void     Server::connexion()
 		clients.push_back(new_client);
 		FD_SET(client_socket, &(this->reads));
 		std::cout << "[Client connected]" << std::endl;
-		write(client_socket, "Please enter the server password\n", 34);
+		fdwrite(client_socket, "Please enter the server password\n");
 		if (this->fd_max < client_socket)
 			this->fd_max = client_socket;
 	}
@@ -168,11 +168,32 @@ void    Server::receiveFromClient(int fd_i, int len_buf)
 			else                //need to check commands with a else if
 			{
 				std::string name = (*it)->getName();
-				write(1, name.c_str(), name.size());
-				write(1, ": ", 2);
-				write(1, this->buf, len_buf);
-				write(1, "\n", 1);
+				//check if client input is a command, if it is not, we put what the client said
+				//in a string and we resend it to other channels / clients.
+				if (buf[0] && buf[0] != '/')
+				{
+					// simple message case;
+					std::string message = name + ": " + buf;
+					std::cout << message << std::endl;
+				}
+				else
+				{
+					//command case
+					std::string command = buf;
+					size_t index = command.find_first_of(' ', 0);
+					std::string params = command.substr(index + 1, command.size());
+					command = command.substr(0, index);
+					if (command == "/join")
+					{
+						//DO the join command
+						if (params[0] == '#')
+							std::cout << "Client created a new channel named : " << params << std::endl;
+						else
+							fdwrite((*it)->getFd(), "Wrong use of JOIN command.\n");
+					}
+				}
 			}
+			fdwrite((*it)->getFd(), (*it)->getName() + ": ");
             break;
 		}
 	}
@@ -183,15 +204,11 @@ void    Server::password_step(Client *client, int fd_i)
 {
     if (client->getPass(this->password, client->getFd(), this->buf) == 1)
 	{
-        write(client->getFd(), "Succesfully connected\n", 23);
+		fdwrite(fd_i, "Succesfully connected.\nPlease enter your Nickname: ");
         client->setPass(true);
-        write(fd_i, "Please enter Nickname: ", 24);
 	}
 	else
-	{
-        write(client->getFd(), "Wrong password, connection refused.\n", 37);
-		write(client->getFd(), "Please try again.\n", 19);
-	}
+		fdwrite(client->getFd(), "Wrong password, connection refused.\nPlease try again.\n");
 }
 
 void    Server::naming_step(Client *client, int fd_i)
@@ -200,10 +217,8 @@ void    Server::naming_step(Client *client, int fd_i)
     client->setName(new_name);
     client->setStat(true);
     new_name.clear();
-    new_name = client->getName();
-    write(fd_i, "Welcome ", 9);
-    write(fd_i, new_name.c_str(), new_name.size());
-    write(fd_i, "\n", 1);
+    new_name = "Welcome " + client->getName() + "\n";
+	fdwrite(fd_i, new_name);
 }
 
 
@@ -216,6 +231,11 @@ void    Server::check_error(int ret, std::string const &str)
 void    Server::resetBuf()
 {
 	memset(this->buf, 0, 1024);
+}
+
+void Server::fdwrite(int fd, std::string str)
+{
+	write(fd, str.c_str(), str.size());
 }
 
 /*          _   _                

@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/15 22:20:45 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/16 16:14:18 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/03/17 09:31:00 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,21 +94,20 @@ bool Client::getPass() const
 	return pass;
 }
 
-void    Client::clear_info()
+/*void    Client::clear_info()
 {
-    int                 fd;
+    	int                 fd;
         struct sockaddr_in  addr;
         socklen_t           adr_sz;
         std::string         nickname;
         bool                stat; // client has named himself;
-}
+}*/
 
 int Client::getPass(std::string password, int clnt_sock, char tmp[1024])
 {
-	int charread;
-	
+	(void)clnt_sock;	
 	std::string marre = tmp;
-	if (password == tmp)
+	if (password == marre)
 		return 1;
 	return 0;
 }
