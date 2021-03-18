@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/17 10:40:59 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/03/18 12:21:49 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <iostream>
 #include <sys/time.h>
 #include "Client.hpp"
-
+#include "Channel.hpp"
 
 class Server
 {
@@ -33,6 +33,8 @@ class Server
         fd_set                  cpy_reads;
         int                     fd_max;
         struct timeval          timeout;
+		std::list<Channel> channels;
+		
 
 
         Server(Server const &cpy);
@@ -61,6 +63,12 @@ class Server
         void    connexion(); // return number of client   
         void    deconnexion(int fd_i);
         void    receiveFromClient(int fd_i, int buf_len);
+		
+		//Handle channels
+		void createChannel(std::string name, Client client);
+		void checkChannels(std::string name, Client client);
+		void clientWriteOnChannel(std::string name, std::string msg, Client client);
+		void getClientsChannels(Client client); //ca doit retourner une list de channels j'imagine mais la jsuis moi meme perdu dans ce que je fais
         
         // internal server layer
         void    password_step(Client *client, int fd_i);
@@ -293,5 +301,13 @@ std::vector<Client*>    Server::getClients()
     return (this->clients);
 }
 
+/*
+ ___ # _  _  #   _   # _  _  # _  _  # ___  # _     #  ___  #
+/ _( #) () ( #  )_\  #) \/ ( #) \/ ( #) __( #) |    # (  _( #
+))_  #| -- | # /( )\ #|  \ | #|  \ | #| _)  #| (__  # _) \  #
+\__( #)_()_( #)_/ \_(#)_()_( #)_()_( #)___( #)____( #)____) #
+     ##       ##       ##       ##       ##      ##       ##       ##
+
+*/
 
 #endif
