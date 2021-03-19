@@ -11,6 +11,7 @@
 #include <vector>
 #include "Client.hpp"
 #include "Server.hpp"
+#include "Channel.hpp"
 
 void	init_bin_args(int argc, char *bin);
 void    *handle_connection(Server *server);

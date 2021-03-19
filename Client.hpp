@@ -3,18 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aeoithd <aeoithd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/15 22:20:45 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/17 09:31:00 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/03/18 22:26:49 by aeoithd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT
 # define CLIENT
 
-#include <arpa/inet.h>
-#include <iostream>
+# include <arpa/inet.h>
+# include <iostream>
+# include <list>
+
+class Channel;
 
 class   Client
 {
@@ -25,23 +28,27 @@ class   Client
         std::string         nickname;
         bool                stat; // client has named himself;
 		bool                pass;
+        std::list<Channel*> channels;
+
 
         Client(Client const &cpy);
         Client &operator=(Client const &affect);
     public:
         Client();
         Client(int fd, struct sockaddr_in addr, socklen_t adr_sz);
+
+        void                join_channel(Channel *channel);
         virtual             ~Client();
         int                 getFd() const;
         bool                getStat() const;
 		bool                getPass() const;
-        std::string const   getName() const;
+        std::string const   &getName() const;
 
         void                setName(std::string &name);
         void                setStat(bool is_set);
 		void                setPass(bool is_set);
         void                clear_info();
-		int                   getPass(std::string password, int clnt_sock, char tmp[1024]);
+		int                 getPass(std::string password, int clnt_sock, char tmp[1024]);
 };
 
 Client::Client() : fd(), addr(), adr_sz(), nickname("noName"), stat(false) , pass(false)
@@ -52,6 +59,11 @@ Client::Client(int fd, struct sockaddr_in addr, socklen_t adr_sz) : fd(fd), addr
 
 Client::~Client()
 {}
+
+void                Client::join_channel(Channel *channel)
+{
+    this->channels.push_back(channel);
+}
 
 void    Client::setStat(bool is_set)
 {
@@ -74,7 +86,7 @@ int     Client::getFd() const
     return (this->fd);
 }
 
-std::string const Client::getName() const
+std::string const &Client::getName() const
 {
     return (this->nickname);
 }
@@ -96,7 +108,7 @@ bool Client::getPass() const
 
 /*void    Client::clear_info()
 {
-    	int                 fd;
+        int                 fd;
         struct sockaddr_in  addr;
         socklen_t           adr_sz;
         std::string         nickname;
@@ -111,5 +123,7 @@ int Client::getPass(std::string password, int clnt_sock, char tmp[1024])
 		return 1;
 	return 0;
 }
+
+#include "Channel.hpp"
 
 #endif

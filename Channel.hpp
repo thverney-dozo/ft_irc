@@ -4,7 +4,8 @@
 #include <iostream>
 #include <list>
 #include <unistd.h>
-#include "Client.hpp"
+
+class Client;
 
 class Channel
 {
@@ -17,6 +18,7 @@ class Channel
 		Channel &operator=(const Channel &other);
 
 	public:
+		Channel(std::string const &name);
 		Channel(std::string const &name, Client &client);
 		virtual ~Channel();
 
@@ -26,6 +28,12 @@ class Channel
 		std::string getChanName() const;
 		std::list<Client*> getConnectedClients() const;
 };
+
+
+Channel::Channel(std::string const &name)
+{
+	this->_name = name;
+}
 
 Channel::Channel(std::string const &name, Client &client)
 {
@@ -60,5 +68,7 @@ void Channel::clientWriteMsg(std::string msg, Client *client)
 		write((*begin)->getFd(), str.c_str(), str.size()); 
 	}
 }
+
+#include "Client.hpp"
 
 #endif
