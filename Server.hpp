@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aeoithd <aeoithd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/19 11:28:28 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/03/19 20:17:52 by aeoithd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,6 +175,10 @@ void    Server::receiveFromClient(int fd_i, int len_buf)
                 naming_step((*it), fd_i);
 			else                //need to check commands with a else if
 			{
+				if ((*it)->getCurrentChan() != "nullptr")
+				{
+					write((*it)->getFd(), "\033[A\33[2KT\r", 3);
+				}
 				std::string name = (*it)->getName();
 				//check if client input is a command, if it is not, we put what the client said
 				//in a string and we resend it to other channels / clients.
