@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aeoithd <aeoithd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/18 21:43:52 by aeoithd          ###   ########.fr       */
+/*   Updated: 2021/03/19 11:28:28 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,9 +65,9 @@ class Server
         void    receiveFromClient(int fd_i, int buf_len);
 		
 		//Handle channels
-		void createChannel(std::string name, Client client);
-		void checkChannels(std::string name, Client client);
-		void clientWriteOnChannel(std::string name, std::string msg, Client client);
+		void createChannel(std::string name, Client *client);
+		int checkChannels(std::string name, Client *client);
+		void clientWriteOnChannel(std::string name, std::string msg, Client *client);
 		void getClientsChannels(Client client); //ca doit retourner une list de channels j'imagine mais la jsuis moi meme perdu dans ce que je fais
         
         // internal server layer
@@ -181,27 +181,42 @@ void    Server::receiveFromClient(int fd_i, int len_buf)
 				if (buf[0] && buf[0] != '/')
 				{
 					// simple message case;
-					std::string message = name + ": " + buf;
+					std::string message;
+					if ((*it)->getCurrentChan() != "nullptr")
+						message = (*it)->getCurrentChan() + ": " + (*it)->getName() + ": " + buf;
+					else
+						message = (*it)->getName() + ": " + buf;
 					std::cout << message << std::endl;
+					message = buf;
+					clientWriteOnChannel((*it)->getCurrentChan(), message, (*it));
 				}
 				else
 				{
 					//command case
 					std::string command = buf;
 					size_t index = command.find_first_of(' ', 0);
-					std::string params = command.substr(index + 1, command.size());
+					std::string params = command.substr(index + 1, std::string::npos);
+					std::cout << "|" << params << "|" << std::endl;
 					command = command.substr(0, index);
+					std::cout << "|" << command << "|" << std::endl;
 					if (command == "/join")
 					{
 						//DO the join command
 						if (params[0] == '#')
-							std::cout << "Client created a new channel named : " << params << std::endl;
+						{
+							if (checkChannels(params, (*it)) == 0)
+							{
+								createChannel(params, (*it));
+								std::cout << "Client created a new channel named : " << params << std::endl;
+							}
+							else
+								std::cout << "Client joined channel : " << params << std::endl;
+						}
 						else
 							fdwrite((*it)->getFd(), "Wrong use of JOIN command.\n");
 					}
 				}
 			}
-			fdwrite((*it)->getFd(), (*it)->getName() + ": ");
             break;
 		}
 	}
@@ -309,5 +324,50 @@ std::vector<Client*>    Server::getClients()
      ##       ##       ##       ##       ##      ##       ##       ##
 
 */
+
+void Server::createChannel(std::string name, Client *client)
+{
+	Channel *new_chan = new Channel(name);
+	channels.push_back(new_chan);
+	new_chan->addClient(client);
+	client->join_channel(new_chan);
+	client->setCurrentChan(new_chan->getChanName());
+}
+
+int Server::checkChannels(std::string name, Client *client)
+{
+	std::list<Channel*>::iterator begin = channels.begin();
+	for (std::list<Channel*>::iterator end = channels.end(); begin != end; begin++)
+	{
+		if (name == (*begin)->getChanName())
+		{
+			(*begin)->addClient(client);
+			client->join_channel(*begin);
+			client->setCurrentChan(name);
+			clientWriteOnChannel((*begin)->getChanName(), "joined the channel", client);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+void Server::clientWriteOnChannel(std::string name, std::string msg, Client *client)
+{
+	std::list<Channel*>::iterator begin = channels.begin();
+	for (std::list<Channel*>::iterator end = channels.end(); begin != end; begin++)
+	{
+		if (name == (*begin)->getChanName())
+		{
+			std::list<Client*> list = (*begin)->getConnectedClients();
+			std::list<Client*>::iterator begin = list.begin();
+			for (std::list<Client*>::iterator end = list.end(); begin != end; begin++)
+			{
+				std::string message = name + ": " + client->getName() + ": " + msg + "\n";
+				fdwrite((*begin)->getFd(), message);
+			}
+			return ;
+		}
+	}
+}
 
 #endif

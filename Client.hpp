@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aeoithd <aeoithd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/15 22:20:45 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/18 22:26:49 by aeoithd          ###   ########.fr       */
+/*   Updated: 2021/03/19 10:48:21 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class   Client
         bool                stat; // client has named himself;
 		bool                pass;
         std::list<Channel*> channels;
+		std::string current_channel;
 
 
         Client(Client const &cpy);
@@ -40,10 +41,12 @@ class   Client
         void                join_channel(Channel *channel);
         virtual             ~Client();
         int                 getFd() const;
+		std::string		getCurrentChan() const;
         bool                getStat() const;
 		bool                getPass() const;
         std::string const   &getName() const;
 
+		void				setCurrentChan(std::string name);
         void                setName(std::string &name);
         void                setStat(bool is_set);
 		void                setPass(bool is_set);
@@ -51,14 +54,19 @@ class   Client
 		int                 getPass(std::string password, int clnt_sock, char tmp[1024]);
 };
 
-Client::Client() : fd(), addr(), adr_sz(), nickname("noName"), stat(false) , pass(false)
+Client::Client() : fd(), addr(), adr_sz(), nickname("noName"), stat(false) , pass(false), current_channel("nullptr")
 {}
 
-Client::Client(int fd, struct sockaddr_in addr, socklen_t adr_sz) : fd(fd), addr(addr), adr_sz(adr_sz), stat(false), pass(false)
+Client::Client(int fd, struct sockaddr_in addr, socklen_t adr_sz) : fd(fd), addr(addr), adr_sz(adr_sz), stat(false), pass(false), current_channel("nullptr")
 {}
 
 Client::~Client()
 {}
+
+void				Client::setCurrentChan(std::string name)
+{
+	current_channel = name;
+}
 
 void                Client::join_channel(Channel *channel)
 {
@@ -84,6 +92,11 @@ void    Client::setName(std::string &name)
 int     Client::getFd() const
 {
     return (this->fd);
+}
+
+std::string Client::getCurrentChan() const
+{
+	return current_channel;
 }
 
 std::string const &Client::getName() const

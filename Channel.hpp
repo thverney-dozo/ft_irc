@@ -14,12 +14,12 @@ class Channel
 		std::list<Client*> _clients;
 
 		Channel();
-		Channel(const Channel &other);
-		Channel &operator=(const Channel &other);
 
 	public:
 		Channel(std::string const &name);
 		Channel(std::string const &name, Client &client);
+		Channel(const Channel &other);
+		Channel &operator=(const Channel &other);
 		virtual ~Channel();
 
 		void addClient(Client *client);
@@ -33,6 +33,17 @@ class Channel
 Channel::Channel(std::string const &name)
 {
 	this->_name = name;
+}
+
+Channel::Channel(const Channel &other)
+{
+	*this = other;
+}
+
+Channel &Channel::operator=(const Channel &other)
+{
+	_name = other._name;
+	return *this;
 }
 
 Channel::Channel(std::string const &name, Client &client)
