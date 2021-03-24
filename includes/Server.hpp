@@ -6,7 +6,7 @@
 /*   By: aeoithd <aeoithd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/24 02:20:24 by aeoithd          ###   ########.fr       */
+/*   Updated: 2021/03/24 17:50:47 by aeoithd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <arpa/inet.h>
 #include <iostream>
 #include <sys/time.h>
+#include <cstring>
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Command.hpp"
