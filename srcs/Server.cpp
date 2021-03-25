@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aeoithd <aeoithd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/24 02:46:07 by aeoithd          ###   ########.fr       */
+/*   Updated: 2021/03/25 16:32:28 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,6 @@ void    Server::receiveFromClient(int fd_i, int len_buf)
 					else
 						message = (*it)->getName() + ": " + buf;
 					std::cout << message << std::endl;
-					message = buf;
 					clientWriteOnChannel((*it)->getCurrentChan(), message, (*it));
 				}
 				else
@@ -139,7 +138,9 @@ void    Server::receiveFromClient(int fd_i, int len_buf)
 
 void	Server::init_commands()
 {
-	this->cmd.insert(std::pair<std::string, Command>("/JOIN", cmd_join));
+	this->cmd.insert(std::pair<std::string, Command>("/join", cmd_join));
+	this->cmd.insert(std::pair<std::string, Command>("/who", cmd_who));
+	this->cmd.insert(std::pair<std::string, Command>("/privmsg", cmd_privmsg));
 }
 
 void    Server::password_step(Client *client, int fd_i)
