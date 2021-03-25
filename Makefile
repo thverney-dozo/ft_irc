@@ -42,7 +42,7 @@ clean:
 	@/bin/rm -rf $(OBJDIR)
 
 fclean: clean
-	@/bin/rm -f $(NAME)
+	@/bin/rm -f $(NAME) debug
 
 re: fclean all
 
