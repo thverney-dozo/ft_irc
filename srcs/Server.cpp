@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/27 12:13:50 by thverney         ###   ########.fr       */
+/*   Updated: 2021/03/27 12:34:33 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,6 +146,43 @@ void	Server::init_commands()
 	this->cmd.insert(std::pair<std::string, Command>("/join", cmd_join));
 	this->cmd.insert(std::pair<std::string, Command>("/who", cmd_who));
 	this->cmd.insert(std::pair<std::string, Command>("/privmsg", cmd_privmsg));
+	
+	//PASSWORD
+	//NICK
+	//USER
+	//SERVER
+	//OPER
+	//QUIT
+	//SQUIT
+	//PART
+	//MODE
+	//TOPIC
+	//NANES
+	//LIST
+	//INVITE
+	//KICK
+	//VERSION
+	//STATS
+	//LINKS
+	//CONNECT
+	//TRACE
+	//ADMIN
+	//INFO
+	//NOTICE
+	//WHOIS
+	//WHOWAS
+	//KILL
+	//PING
+	//PONG
+	//ERROR
+	//SERVICE
+	//MOTD
+	//LUSERS
+	//TIME
+	//SERVLIST
+	//SQUERY
+	//NJOIN
+	// soit 37 commandes
 }
 
 void    Server::password_step(Client *client, int fd_i)
