@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/25 16:32:28 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/03/27 12:13:50 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,21 +114,26 @@ void    Server::receiveFromClient(int fd_i, int len_buf)
 					if ((*it)->getCurrentChan() != "nullptr")
 						write((*it)->getFd(), "\033[A\33[2KT\r", 3); // to erase what client wrote on the fd
 					// simple message case;
-					std::string message;
-					if ((*it)->getCurrentChan() != "nullptr")
-						message = (*it)->getCurrentChan() + ": " + (*it)->getName() + ": " + buf;
-					else
-						message = (*it)->getName() + ": " + buf;
-					std::cout << message << std::endl;
-					clientWriteOnChannel((*it)->getCurrentChan(), message, (*it));
+					// std::string message;
+					// if ((*it)->getCurrentChan() != "nullptr")
+					// 	message = (*it)->getCurrentChan() + ": " + (*it)->getName() + ": " + buf;
+					// else
+					// message = (*it)->getName() + ": " + buf;
+					std::cout << buf << std::endl;
+					clientWriteOnChannel((*it)->getCurrentChan(), buf, (*it));
 				}
-				else
+				else if (buf[0])
 				{
 					std::vector<std::string> splited_cmd = ft_split(buf); // equivalent à un char ** de retour de split
 					std::map<std::string, Command>::iterator find_cmd = this->cmd.find(splited_cmd[0]); // Cherche la command
 					if (find_cmd != cmd.end())
 						(*find_cmd).second.exe(splited_cmd, this, (*it)); // execute la command si elle existe
 				}
+				else
+				{
+					write((*it)->getFd(), "\033[A\33[2KT\r", 3); // to erase what client wrote on the fd
+				}
+				
 			}
             break;
 		}

@@ -19,10 +19,10 @@ void	cmd_privmsg(std::vector<std::string> split, Server *serv, Client *client)
 				message += (*ite2);
 				message += " ";
 			}
-			std::string realmessage = "From " + client->getName() + ": " + message;
+			std::string realmessage = "From " + client->getName() + ": " + message + '\n';
 			serv->fdwrite((*ite)->getFd(), realmessage);
 			serv->fdwrite(client->getFd(), "\033[A\33[2KT\r");
-			serv->fdwrite(client->getFd(), "To " + (*ite)->getName() + ": " + message);
+			serv->fdwrite(client->getFd(), "To " + (*ite)->getName() + ": " + message + '\n');
 			return ;
 		}
 	}
