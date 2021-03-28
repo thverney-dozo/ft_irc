@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aeoithd <aeoithd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/24 17:50:47 by aeoithd          ###   ########.fr       */
+/*   Updated: 2021/03/28 15:25:45 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,15 +39,15 @@ class Server
 		std::list<Channel*> 			channels;
 		std::map<std::string, Command>	cmd;
 
-
         Server(Server const &cpy);
         Server &operator=(Server const &affect);
+
     public:
         Server();
         Server(char *port, std::string const &password);
         virtual ~Server();
 
-        // getters
+        /******************* getters ******************/
         int                     getServSock() const;
         int                     getFdMax() const;
         std::string const       &getPassword() const;
@@ -57,27 +57,30 @@ class Server
         fd_set                  *getCpyReads_addr();
         std::vector<Client*>    getClients();
         char                    *getBuf();
+        /**********************************************/
 
-        // Setup
+        // ########### Setup #############
         void    setup_server(char *port);
 		void	init_commands();
 
         
-        // Handle server
+        // ####### Handle server ###########
         int     detection_select();
         void    connexion(); // return number of client   
         void    deconnexion(int fd_i);
         void    receiveFromClient(int fd_i, int buf_len);
 		
-		//Handle channels
+		// ###### Handle channels #########
 		void createChannel(std::string name, Client *client);
 		int checkChannels(std::string name, Client *client);
 		void clientWriteOnChannel(std::string name, std::string msg, Client *client);
 		void getClientsChannels(Client client); //ca doit retourner une list de channels j'imagine mais la jsuis moi meme perdu dans ce que je fais
         
-        // internal server layer
-        void    password_step(Client *client, int fd_i);
-        void    naming_step(Client *client, int fd_i);
+        // ####### internal server layer ##########
+        void    registration(Client *client, char *buf);
+        void    pass_register_step(Client *client, std::vector<std::string> splited_cmd);
+        void    nick_register_step(Client *client, std::vector<std::string> splited_cmd);
+        void    user_register_step(Client *client, std::vector<std::string> splited_cmd);
 
 		void	fdwrite(int fd, std::string str);
         void    resetBuf();

@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/27 12:34:33 by thverney         ###   ########.fr       */
+/*   Updated: 2021/03/28 17:23:46 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ void     Server::connexion()
     if (client_socket != -1)
 	{
 		Client *new_client = new Client(client_socket, clnt_adr, adr_sz);
+		new_client->setIsServer(false); 									// IMPORTANT à gerer:  valeur par defaul de client 
 		clients.push_back(new_client);
 		FD_SET(client_socket, &(this->reads));
 		std::cout << "[Client connected]" << std::endl;
@@ -99,12 +100,11 @@ void    Server::receiveFromClient(int fd_i, int len_buf)
     std::vector<Client*>::iterator ite = this->clients.end();
     for (std::vector<Client*>::iterator it = this->clients.begin(); it != ite; ++it) // find my client
 	{
-		if (fd_i == (*it)->getFd() && fd_i != serv_sock) {
-			if ((*it)->getPass() == false)     // client needs to input server's password
-                password_step((*it), fd_i);
-			else if ((*it)->getStat() == false) // has my client named himself
-                naming_step((*it), fd_i);
-			else                //need to check commands with a else if
+		if (fd_i == (*it)->getFd() && fd_i != serv_sock)
+		{
+			if ((*it)->getIsRegister() == false)
+				registration((*it), buf);
+			else
 			{
 				std::string name = (*it)->getName();
 				//check if client input is a command, if it is not, we put what the client said
@@ -113,12 +113,6 @@ void    Server::receiveFromClient(int fd_i, int len_buf)
 				{
 					if ((*it)->getCurrentChan() != "nullptr")
 						write((*it)->getFd(), "\033[A\33[2KT\r", 3); // to erase what client wrote on the fd
-					// simple message case;
-					// std::string message;
-					// if ((*it)->getCurrentChan() != "nullptr")
-					// 	message = (*it)->getCurrentChan() + ": " + (*it)->getName() + ": " + buf;
-					// else
-					// message = (*it)->getName() + ": " + buf;
 					std::cout << buf << std::endl;
 					clientWriteOnChannel((*it)->getCurrentChan(), buf, (*it));
 				}
@@ -146,6 +140,9 @@ void	Server::init_commands()
 	this->cmd.insert(std::pair<std::string, Command>("/join", cmd_join));
 	this->cmd.insert(std::pair<std::string, Command>("/who", cmd_who));
 	this->cmd.insert(std::pair<std::string, Command>("/privmsg", cmd_privmsg));
+	this->cmd.insert(std::pair<std::string, Command>("/pass", cmd_pass));
+	this->cmd.insert(std::pair<std::string, Command>("/nick", cmd_nick));
+	this->cmd.insert(std::pair<std::string, Command>("/user", cmd_user));
 	
 	//PASSWORD
 	//NICK
@@ -185,33 +182,86 @@ void	Server::init_commands()
 	// soit 37 commandes
 }
 
-void    Server::password_step(Client *client, int fd_i)
+void    Server::registration(Client *client, char *buf)
 {
-    if (client->getPass(this->password, client->getFd(), this->buf) == 1)
-	{
-		fdwrite(fd_i, "Succesfully connected.\nPlease enter your Nickname: ");
-        client->setPass(true);
+
+	std::vector<std::string> splited_cmd = ft_split(buf);
+	if (splited_cmd.empty()) {
+		fdwrite(client->getFd(), "You need to register(/pass, /nick, /user)\n");
+		return;
 	}
-	else
-		fdwrite(client->getFd(), "Wrong password, connection refused.\nPlease try again.\n");
+	if (!buf || !buf[0] || splited_cmd[0].empty() || (splited_cmd[0].compare("/pass") != 0 
+	&& splited_cmd[0].compare("/nick") != 0 && splited_cmd[0].compare("/user") != 0))
+	{
+		fdwrite(client->getFd(), "You need to register with the following input (3 steps):   ");
+		if (client->getIsPassSet() == false)
+			fdwrite(client->getFd(), "1. \"/pass ...\"\n");
+		else if (client->getIsNickSet() == false)
+			fdwrite(client->getFd(), "2. \"/nick ...\"\n");
+		else if (client->getIsUserSet() == false)
+			fdwrite(client->getFd(), "3. \"/user ...\"\n");
+	}
+
+	if (client->getIsPassSet() == false && splited_cmd[0].compare("/pass") == 0) {
+        pass_register_step(client, splited_cmd);
+		if (client->getIsPassSet() == true) {
+			fdwrite(client->getFd(), "You need to register with the following input (3 steps):   ");
+			fdwrite(client->getFd(), "2. \"/nick ...\"\n");
+		}
+	}
+	else if (client->getIsNickSet() == false && splited_cmd[0].compare("/nick") == 0) {    // client needs to input server's password
+		nick_register_step(client, splited_cmd);
+		if (client->getIsNickSet() == true) {
+			fdwrite(client->getFd(), "You need to register with the following input (3 steps):   ");
+			fdwrite(client->getFd(), "3. \"/user ...\"\n");
+		}
+	}
+	else if (client->getIsUserSet() == false && splited_cmd[0].compare("/user") == 0)	   // client needs to input server's password
+        user_register_step(client, splited_cmd);
+	if (client->getIsPassSet() == true && client->getIsUserSet() == true && client->getIsNickSet() == true) {
+		client->setRegister(true);
+		fdwrite(client->getFd(), "Registration done !\n");
+	}
 }
 
-void    Server::naming_step(Client *client, int fd_i)
+
+
+
+void    Server::pass_register_step(Client *client, std::vector<std::string> splited_cmd)
 {
-    std::string new_name(buf);
-    client->setName(new_name);
-    client->setStat(true);
-    new_name.clear();
-    new_name = "Welcome " + client->getName() + "\n";
-	fdwrite(fd_i, new_name);
+	cmd_pass(splited_cmd, this, client);
+	if (client->getIsPassSet() == true)
+		write(client->getFd(), "pass step done\n", 16);
+	else
+		write(client->getFd(), "failed pass step\n", 16);
+	
 }
+
+void    Server::nick_register_step(Client *client, std::vector<std::string> splited_cmd)
+{
+	cmd_nick(splited_cmd, this, client);
+	if (client->getIsPassSet() == true)
+		write(client->getFd(), "nick step done\n", 16);
+	else
+		write(client->getFd(), "failed nick step\n", 16);
+}
+
+void    Server::user_register_step(Client *client, std::vector<std::string> splited_cmd)
+{
+	cmd_user(splited_cmd, this, client);
+	if (client->getIsPassSet() == true)
+		write(client->getFd(), "user step done\n", 16);
+	else
+		write(client->getFd(), "failed user step\n", 16);
+}
+
+
 
 
 void    Server::check_error(int ret, std::string const &str)
 {
     if (ret < 0) { std::cerr << str << std::endl; exit(1); }
 }
-
 
 void    Server::resetBuf()
 {
@@ -230,6 +280,8 @@ std::vector<std::string>	Server::ft_split(std::string msg)
 	std::string		            tmp;
     std::string                 whsp(" \t\f\v\n\r");
 
+	if (msg.empty())
+		return std::vector<std::string>();
 	if ((pos = msg.find_last_not_of(whsp)) != std::string::npos)
 		msg.erase(pos + 1);
 	else

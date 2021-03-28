@@ -4,7 +4,10 @@ SRC				= main.cpp Channel.cpp \
 				Command.cpp \
 				cmds/cmd_join.cpp \
 				cmds/cmd_who.cpp \
-				cmds/cmd_privmsg.cpp
+				cmds/cmd_privmsg.cpp \
+				cmds/cmd_pass.cpp \
+				cmds/cmd_nick.cpp \
+				cmds/cmd_user.cpp
 
 OBJ				= $(SRC:.cpp=.o)
 SRCDIR      	= ./srcs/

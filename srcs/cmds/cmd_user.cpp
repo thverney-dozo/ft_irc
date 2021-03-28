@@ -1,22 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Command.cpp                                        :+:      :+:    :+:   */
+/*   cmd_user.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/24 02:21:10 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/28 15:44:04 by thverney         ###   ########.fr       */
+/*   Created: 2021/03/28 15:19:59 by thverney          #+#    #+#             */
+/*   Updated: 2021/03/28 15:33:51 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Command.hpp"
 
-Command::Command(t_commandFunc cmd) : _cmd(cmd) {}
-Command::~Command() {}
-
-void    Command::exe(std::vector<std::string> split, Server *serv, Client *client)
+void	cmd_user(std::vector<std::string> split, Server *serv, Client *client)
 {
-	this->_cmd(split, serv, client);
+	(void)serv;
+	if (client->getIsServer() == false) 				// if connection is a client
+	{
+		if (split[1].empty())
+			write(client->getFd(), "/user cmd must be followed by a username\n", 42); // must be changed by ERR_NONICKNAMEGIVEN
+		else
+		{
+			client->setUsername(split[1]);
+			client->setUserSet(true);
+		}
+	}
+	else // if connection is a server
+	{}
 }
-
