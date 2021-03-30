@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/28 17:23:46 by thverney         ###   ########.fr       */
+/*   Updated: 2021/03/30 12:31:50 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ void     Server::connexion()
 		clients.push_back(new_client);
 		FD_SET(client_socket, &(this->reads));
 		std::cout << "[Client connected]" << std::endl;
+		new_client->setConnectionStatus(true);
 		fdwrite(client_socket, "Please enter the server password\n");
 		if (this->fd_max < client_socket)
 			this->fd_max = client_socket;
@@ -143,6 +144,8 @@ void	Server::init_commands()
 	this->cmd.insert(std::pair<std::string, Command>("/pass", cmd_pass));
 	this->cmd.insert(std::pair<std::string, Command>("/nick", cmd_nick));
 	this->cmd.insert(std::pair<std::string, Command>("/user", cmd_user));
+	this->cmd.insert(std::pair<std::string, Command>("/quit", cmd_quit));
+	this->cmd.insert(std::pair<std::string, Command>("/part", cmd_part));
 	
 	//PASSWORD
 	//NICK
@@ -231,9 +234,9 @@ void    Server::pass_register_step(Client *client, std::vector<std::string> spli
 {
 	cmd_pass(splited_cmd, this, client);
 	if (client->getIsPassSet() == true)
-		write(client->getFd(), "pass step done\n", 16);
+		fdwrite(client->getFd(), "pass step done\n");
 	else
-		write(client->getFd(), "failed pass step\n", 16);
+		fdwrite(client->getFd(), "failed pass step\n");
 	
 }
 
@@ -241,18 +244,18 @@ void    Server::nick_register_step(Client *client, std::vector<std::string> spli
 {
 	cmd_nick(splited_cmd, this, client);
 	if (client->getIsPassSet() == true)
-		write(client->getFd(), "nick step done\n", 16);
+		fdwrite(client->getFd(), "nick step done\n");
 	else
-		write(client->getFd(), "failed nick step\n", 16);
+		fdwrite(client->getFd(), "failed nick step\n");
 }
 
 void    Server::user_register_step(Client *client, std::vector<std::string> splited_cmd)
 {
 	cmd_user(splited_cmd, this, client);
 	if (client->getIsPassSet() == true)
-		write(client->getFd(), "user step done\n", 16);
+		fdwrite(client->getFd(), "user step done\n");
 	else
-		write(client->getFd(), "failed user step\n", 16);
+		fdwrite(client->getFd(), "failed user step\n");
 }
 
 
@@ -378,6 +381,18 @@ void Server::createChannel(std::string name, Client *client)
 	new_chan->addClient(client);
 	client->join_channel(new_chan);
 	client->setCurrentChan(new_chan->getChanName());
+	fdwrite(client->getFd(), "Channel " + name + " successfully created\n");
+}
+
+int Server::checkChannelList(std::string name)
+{
+	std::list<Channel*>::iterator begin = channels.begin();
+	for (std::list<Channel*>::iterator end = channels.end(); begin != end; begin++)
+	{
+		if(name == (*begin)->getChanName())
+			return 1;
+	}
+	return 0;
 }
 
 int Server::checkChannels(std::string name, Client *client)

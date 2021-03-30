@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:19:44 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/28 15:40:39 by thverney         ###   ########.fr       */
+/*   Updated: 2021/03/30 12:25:03 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,20 @@ void                Client::join_channel(Channel *channel)
     this->channels.push_back(channel);
 }
 
+void				Client::leave_channel(std::string name)
+{
+	std::list<Channel*>::iterator begin = channels.begin();
+	for (std::list<Channel*>::iterator end = channels.end(); begin != end; begin++)
+	{
+		if ((*begin)->getChanName() == name)
+		{
+			(*begin)->clientWriteMsg(getName() + ": left the channel\n", this);
+			channels.erase(begin);
+			return ;
+		}
+	}
+}
+
 std::string const  &Client::getCurrentChan()    const   { return (this->current_channel); }
 std::string const  &Client::getName()           const   { return (this->nickname); }
 std::string const  &Client::getPassword()       const   { return (this->password); }
@@ -45,6 +59,7 @@ bool                Client::getIsPassSet()      const   { return (this->is_pass_
 bool                Client::getIsNickSet()      const   { return (this->is_nick_set); }
 bool                Client::getIsUserSet()      const   { return (this->is_user_set); }
 bool                Client::getIsRegister()     const   { return (this->is_register); }
+bool				Client::getConnectionStatus() const { return (this->is_connected); }
 int                 Client::getFd()             const   { return (this->fd); }
 
 
@@ -59,6 +74,7 @@ void                Client::setName(std::string const &name)            { this->
 void                Client::setPassword(std::string const &password)    { this->password = password; }
 void                Client::setNickname(std::string const &nickname)    { this->nickname = nickname; }
 void                Client::setUsername(std::string const &username)    { this->username = username; }
+void				Client::setConnectionStatus(bool is_connected) { this->is_connected = is_connected; }
 
 /*void    Client::clear_info()
 {
@@ -76,4 +92,11 @@ int Client::getPass(std::string password, int clnt_sock, char tmp[1024])
 	if (password == marre)
 		return 1;
 	return 0;
+}
+
+void Client::write_on_all_chans(std::string msg)
+{
+	std::list<Channel*>::iterator begin = channels.begin();
+	for (std::list<Channel*>::iterator end = channels.end(); begin != end; begin++)
+		(*begin)->clientWriteMsg(msg, this);
 }

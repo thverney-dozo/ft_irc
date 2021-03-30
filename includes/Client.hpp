@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/15 22:20:45 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/28 15:40:13 by thverney         ###   ########.fr       */
+/*   Updated: 2021/03/30 12:21:29 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ class   Client
         std::string         nickname;
         std::string         password;
         std::string         username;
+		bool				  is_connected;
         /*****************************/
 
 
@@ -57,6 +58,8 @@ class   Client
         virtual             ~Client();
 
         void                join_channel(Channel *channel);
+		void				leave_channel(std::string name);
+		void				write_on_all_chans(std::string msg);
 
         // **************************** getters **********************************
         int                 getFd()                 const;
@@ -65,6 +68,7 @@ class   Client
         bool                getIsUserSet()          const;
         bool                getIsRegister()         const;
         bool                getIsServer()           const;
+		bool				getConnectionStatus() const;
         std::string const   &getName()              const;
         std::string const   &getPassword()          const;
         std::string const   &getUsername()          const;
@@ -84,6 +88,7 @@ class   Client
         void                setUserSet(bool is_set);
         void                setRegister(bool is_register);
         void                setIsServer(bool is_serv);
+		void				setConnectionStatus(bool is_connected);
         // ***********************************************************************
         void                clear_info();
 };

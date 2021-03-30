@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/23 19:21:49 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/28 15:42:53 by thverney         ###   ########.fr       */
+/*   Updated: 2021/03/30 11:33:41 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ void	cmd_privmsg(std::vector<std::string> split, Server *serv, Client *client);
 void	cmd_pass(std::vector<std::string> split, Server *serv, Client *client);
 void	cmd_nick(std::vector<std::string> split, Server *serv, Client *client);
 void	cmd_user(std::vector<std::string> split, Server *serv, Client *client);
+void	cmd_quit(std::vector<std::string> split, Server *serv, Client *client);
+void	cmd_part(std::vector<std::string> split, Server *serv, Client *client);
 
 
 

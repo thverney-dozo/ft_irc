@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_join.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 00:50:36 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/28 15:19:49 by thverney         ###   ########.fr       */
+/*   Updated: 2021/03/30 11:36:17 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,20 @@
 
 void	cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 {
-    if (split[1][0] == '#')
+	if (split.size() > 1)
 	{
-		if (serv->checkChannels(split[1], client) == 0)
+  	  if (split[1][0] == '#')
 		{
-			serv->createChannel(split[1], client);
-			std::cout << "Client created a new channel named : " << split[1] << std::endl;
+			if (serv->checkChannels(split[1], client) == 0)
+			{
+				serv->createChannel(split[1], client);
+				std::cout << "Client created a new channel named : " << split[1] << std::endl;
+			}
+			else
+				std::cout << "Client joined channel : " << split[1] << std::endl;
 		}
 		else
-			std::cout << "Client joined channel : " << split[1] << std::endl;
+			serv->fdwrite(client->getFd(), "Wrong use of JOIN command.\n");
 	}
 	else
 		serv->fdwrite(client->getFd(), "Wrong use of JOIN command.\n");

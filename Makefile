@@ -7,7 +7,9 @@ SRC				= main.cpp Channel.cpp \
 				cmds/cmd_privmsg.cpp \
 				cmds/cmd_pass.cpp \
 				cmds/cmd_nick.cpp \
-				cmds/cmd_user.cpp
+				cmds/cmd_user.cpp \
+				cmds/cmd_quit.cpp \
+				cmds/cmd_part.cpp
 
 OBJ				= $(SRC:.cpp=.o)
 SRCDIR      	= ./srcs/
