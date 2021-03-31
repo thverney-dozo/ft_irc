@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/30 12:31:50 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/03/31 08:32:44 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -319,6 +319,11 @@ std::vector<std::string>	Server::ft_split(std::string msg)
   __/ |                          
  |___/                           
 */
+
+std::list<Channel*> Server::getChannels() const
+{
+	return channels;
+}
 
 int     Server::getServSock() const
 {

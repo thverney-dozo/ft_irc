@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aeoithd <aeoithd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:05:39 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/24 02:05:47 by aeoithd          ###   ########.fr       */
+/*   Updated: 2021/03/31 08:47:06 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,9 @@ class Channel
 		virtual ~Channel();
 
 		void addClient(Client *client);
+		void removeClient(Client *client);
 		void clientWriteMsg(std::string msg, Client *client);
+		void userLeftChan(Client *client);
 
 		std::string getChanName() const;
 		std::list<Client*> getConnectedClients() const;

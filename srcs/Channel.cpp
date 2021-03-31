@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 01:44:20 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/30 11:02:33 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/03/31 09:01:36 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,38 @@ std::list<Client*> Channel::getConnectedClients() const
 
 void Channel::addClient(Client *client)
 {
+	std::list<Client*>::iterator end = this->_clients.end();
+	for (std::list<Client*>::iterator begin = this->_clients.begin(); begin != end; begin++)
+	{
+		if (client->getFd() == (*begin)->getFd())
+			return ;
+	}
 	_clients.push_back(client);
+}
+
+void Channel::removeClient(Client *client)
+{
+	std::list<Client*>::iterator begin = _clients.begin();
+	for (std::list<Client*>::iterator end = _clients.end(); begin != end; begin++)
+	{
+		if (client->getFd() == (*begin)->getFd())
+		{
+			_clients.erase(begin);
+			return ;
+		}
+	}
+}
+
+void Channel::userLeftChan(Client *client)
+{
+	std::list<Client*>::iterator end = this->_clients.end();
+	for (std::list<Client*>::iterator begin = this->_clients.begin(); begin != end; begin++)
+	{
+		std::string str = "\rUser " + client->getName() + " left the channel.\n";
+		if (client->getFd() == (*begin)->getFd())
+			str = "\rYou left channel " + _name + "\n";
+		write((*begin)->getFd(), str.c_str(), str.size()); 
+	}
 }
 
 void Channel::clientWriteMsg(std::string msg, Client *client)

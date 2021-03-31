@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:19:44 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/30 12:25:03 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/03/31 09:04:13 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void				Client::leave_channel(std::string name)
 	{
 		if ((*begin)->getChanName() == name)
 		{
-			(*begin)->clientWriteMsg(getName() + ": left the channel\n", this);
+			(*begin)->userLeftChan(this);
 			channels.erase(begin);
 			return ;
 		}

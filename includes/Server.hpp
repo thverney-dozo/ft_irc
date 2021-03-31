@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/30 12:32:02 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/03/31 08:32:21 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ class Server
 		int checkChannels(std::string name, Client *client);
 		int checkChannelList(std::string name);
 		void clientWriteOnChannel(std::string name, std::string msg, Client *client);
-		void getClientsChannels(Client client); //ca doit retourner une list de channels j'imagine mais la jsuis moi meme perdu dans ce que je fais
+		std::list<Channel*> getChannels() const; //ca doit retourner une list de channels j'imagine mais la jsuis moi meme perdu dans ce que je fais
         
         // ####### internal server layer ##########
         void    registration(Client *client, char *buf);

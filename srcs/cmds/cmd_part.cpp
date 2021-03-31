@@ -10,8 +10,17 @@ void	cmd_part(std::vector<std::string> split, Server *serv, Client *client)
 			{
 				client->leave_channel(split[1]);
 				client->setCurrentChan("nullptr");
+				std::list<Channel*> list = serv->getChannels();
+				std::list<Channel*>::iterator begin = list.begin();
+				for (std::list<Channel*>::iterator end = list.end(); begin != end; begin++)
+				{
+					if ((*begin)->getChanName() == split[1])
+						(*begin)->removeClient(client);
+				}
 				return ;
 			}
+			else
+				serv->fdwrite(client->getFd(), "Error: '" + split[1] +  "' no such channel\n");
 		}
 	}
 }
