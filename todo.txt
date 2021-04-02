@@ -1,0 +1,14 @@
+/!\ FAUT ARRETER D UTILISER NC ET UTILISER UN VRAI CLIENT IRC /!\
+(parce que du coup les commandes marchent pas correctement sur un vrai client xd)
+
+-De ce que jai cru capter, la commande PASS sert a set le mdp du serveur et pas d'un user, mais jsuis pas sur;
+-J'ai fais la commande TOPIC est presque finie (faut juste gerer un cas derreur ou tessaie de set le topic dun chan dans lequel tes pas)
+-La commande LIST pue sa mere, pr linstant jai juste fais un truc qui liste tous les chans du serveur;
+
+
+EN PRIORITE
+
+-Il faut vraiment s'occuper de faire les mods sur les chans et du statut operateur, jpense que cest important de le faire mnt pr faire les commandes correctement;
+-La communication interserver ca a l'air pas mal a faire aussi;
+-Faudrait faire en sorte que notre serveur fonctionne comme nimporte quel autre avec des clients irc mais aucune putain d'idee de comment faire 
+( j'utilise xChat et ca fonctionne pas du tout pareil);

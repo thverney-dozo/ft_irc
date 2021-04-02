@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 01:44:20 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/31 09:01:36 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/04/02 08:40:17 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,4 +89,14 @@ void Channel::clientWriteMsg(std::string msg, Client *client)
 		std::string str = _name + ": " + client->getName() + ": " + msg;
 		write((*begin)->getFd(), str.c_str(), str.size()); 
 	}
+}
+
+void Channel::setTopic(std::string subject)
+{
+	_topic = subject;
+}
+
+std::string Channel::getTopic() const
+{
+	return _topic;
 }

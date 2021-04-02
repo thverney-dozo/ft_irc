@@ -9,6 +9,8 @@ SRC				= main.cpp Channel.cpp \
 				cmds/cmd_nick.cpp \
 				cmds/cmd_user.cpp \
 				cmds/cmd_quit.cpp \
+				cmds/cmd_topic.cpp \
+				cmds/cmd_list.cpp \
 				cmds/cmd_part.cpp
 
 OBJ				= $(SRC:.cpp=.o)

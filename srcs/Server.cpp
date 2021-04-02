@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/31 08:32:44 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/04/02 08:55:20 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,6 @@ void     Server::connexion()
 		FD_SET(client_socket, &(this->reads));
 		std::cout << "[Client connected]" << std::endl;
 		new_client->setConnectionStatus(true);
-		fdwrite(client_socket, "Please enter the server password\n");
 		if (this->fd_max < client_socket)
 			this->fd_max = client_socket;
 	}
@@ -97,7 +96,8 @@ void    Server::deconnexion(int fd_i)
 void    Server::receiveFromClient(int fd_i, int len_buf)
 {
     this->buf[len_buf - 1] = '\0';
-
+	std::cout << buf << std::endl;
+	
     std::vector<Client*>::iterator ite = this->clients.end();
     for (std::vector<Client*>::iterator it = this->clients.begin(); it != ite; ++it) // find my client
 	{
@@ -110,25 +110,21 @@ void    Server::receiveFromClient(int fd_i, int len_buf)
 				std::string name = (*it)->getName();
 				//check if client input is a command, if it is not, we put what the client said
 				//in a string and we resend it to other channels / clients.
-				if (buf[0] && buf[0] != '/')
+				std::vector<std::string> splited_cmd = ft_split(buf); // equivalent à un char ** de retour de split
+				std::map<std::string, Command>::iterator find_cmd = this->cmd.find(splited_cmd[0]); // Cherche la command
+				if (find_cmd != cmd.end())
+					(*find_cmd).second.exe(splited_cmd, this, (*it)); // execute la command si elle existe
+				else if (find_cmd == cmd.end())
 				{
 					if ((*it)->getCurrentChan() != "nullptr")
 						write((*it)->getFd(), "\033[A\33[2KT\r", 3); // to erase what client wrote on the fd
 					std::cout << buf << std::endl;
 					clientWriteOnChannel((*it)->getCurrentChan(), buf, (*it));
 				}
-				else if (buf[0])
-				{
-					std::vector<std::string> splited_cmd = ft_split(buf); // equivalent à un char ** de retour de split
-					std::map<std::string, Command>::iterator find_cmd = this->cmd.find(splited_cmd[0]); // Cherche la command
-					if (find_cmd != cmd.end())
-						(*find_cmd).second.exe(splited_cmd, this, (*it)); // execute la command si elle existe
-				}
 				else
 				{
 					write((*it)->getFd(), "\033[A\33[2KT\r", 3); // to erase what client wrote on the fd
 				}
-				
 			}
             break;
 		}
@@ -139,13 +135,35 @@ void    Server::receiveFromClient(int fd_i, int len_buf)
 void	Server::init_commands()
 {
 	this->cmd.insert(std::pair<std::string, Command>("/join", cmd_join));
+	this->cmd.insert(std::pair<std::string, Command>("join", cmd_join));
+	this->cmd.insert(std::pair<std::string, Command>("JOIN", cmd_join));
 	this->cmd.insert(std::pair<std::string, Command>("/who", cmd_who));
+	this->cmd.insert(std::pair<std::string, Command>("who", cmd_who));
+	this->cmd.insert(std::pair<std::string, Command>("WHO", cmd_who));
 	this->cmd.insert(std::pair<std::string, Command>("/privmsg", cmd_privmsg));
+	this->cmd.insert(std::pair<std::string, Command>("privmsg", cmd_privmsg));
+	this->cmd.insert(std::pair<std::string, Command>("PRIVMSG", cmd_privmsg));
 	this->cmd.insert(std::pair<std::string, Command>("/pass", cmd_pass));
+	this->cmd.insert(std::pair<std::string, Command>("pass", cmd_pass));
+	this->cmd.insert(std::pair<std::string, Command>("PASS", cmd_pass));
 	this->cmd.insert(std::pair<std::string, Command>("/nick", cmd_nick));
+	this->cmd.insert(std::pair<std::string, Command>("nick", cmd_nick));
+	this->cmd.insert(std::pair<std::string, Command>("NICK", cmd_nick));
 	this->cmd.insert(std::pair<std::string, Command>("/user", cmd_user));
+	this->cmd.insert(std::pair<std::string, Command>("user", cmd_user));
+	this->cmd.insert(std::pair<std::string, Command>("USER", cmd_user));
 	this->cmd.insert(std::pair<std::string, Command>("/quit", cmd_quit));
+	this->cmd.insert(std::pair<std::string, Command>("quit", cmd_quit));
+	this->cmd.insert(std::pair<std::string, Command>("QUIT", cmd_quit));
 	this->cmd.insert(std::pair<std::string, Command>("/part", cmd_part));
+	this->cmd.insert(std::pair<std::string, Command>("part", cmd_part));
+	this->cmd.insert(std::pair<std::string, Command>("PART", cmd_part));
+	this->cmd.insert(std::pair<std::string, Command>("/topic", cmd_topic));
+	this->cmd.insert(std::pair<std::string, Command>("topic", cmd_topic));
+	this->cmd.insert(std::pair<std::string, Command>("TOPIC", cmd_topic));
+	this->cmd.insert(std::pair<std::string, Command>("/list", cmd_list));
+	this->cmd.insert(std::pair<std::string, Command>("list", cmd_list));
+	this->cmd.insert(std::pair<std::string, Command>("LIST", cmd_list));
 	
 	//PASSWORD
 	//NICK
@@ -194,7 +212,11 @@ void    Server::registration(Client *client, char *buf)
 		return;
 	}
 	if (!buf || !buf[0] || splited_cmd[0].empty() || (splited_cmd[0].compare("/pass") != 0 
-	&& splited_cmd[0].compare("/nick") != 0 && splited_cmd[0].compare("/user") != 0))
+	&& splited_cmd[0].compare("/nick") != 0 && splited_cmd[0].compare("/user") != 0
+	&& splited_cmd[0].compare("nick") && splited_cmd[0].compare("user") != 0
+	&& splited_cmd[0].compare("pass") != 0
+	&& splited_cmd[0].compare("NICK") && splited_cmd[0].compare("USER") != 0
+	&& splited_cmd[0].compare("PASS") != 0))
 	{
 		fdwrite(client->getFd(), "You need to register with the following input (3 steps):   ");
 		if (client->getIsPassSet() == false)
@@ -205,21 +227,23 @@ void    Server::registration(Client *client, char *buf)
 			fdwrite(client->getFd(), "3. \"/user ...\"\n");
 	}
 
-	if (client->getIsPassSet() == false && splited_cmd[0].compare("/pass") == 0) {
+	if (client->getIsPassSet() == false && ((splited_cmd[0].compare("/pass") == 0)  || (splited_cmd[0].compare("pass") == 0) || (splited_cmd[0].compare("PASS") == 0)))
+	{
         pass_register_step(client, splited_cmd);
 		if (client->getIsPassSet() == true) {
 			fdwrite(client->getFd(), "You need to register with the following input (3 steps):   ");
 			fdwrite(client->getFd(), "2. \"/nick ...\"\n");
 		}
 	}
-	else if (client->getIsNickSet() == false && splited_cmd[0].compare("/nick") == 0) {    // client needs to input server's password
+	else if (client->getIsNickSet() == false && ((splited_cmd[0].compare("/nick") == 0)  || (splited_cmd[0].compare("nick") == 0) || (splited_cmd[0].compare("NICK") == 0)))
+	{    // client needs to input server's password
 		nick_register_step(client, splited_cmd);
 		if (client->getIsNickSet() == true) {
 			fdwrite(client->getFd(), "You need to register with the following input (3 steps):   ");
 			fdwrite(client->getFd(), "3. \"/user ...\"\n");
 		}
 	}
-	else if (client->getIsUserSet() == false && splited_cmd[0].compare("/user") == 0)	   // client needs to input server's password
+	else if (client->getIsUserSet() == false && ((splited_cmd[0].compare("/user") == 0) || (splited_cmd[0].compare("user") == 0) || (splited_cmd[0].compare("USER") == 0)))	   // client needs to input server's password
         user_register_step(client, splited_cmd);
 	if (client->getIsPassSet() == true && client->getIsUserSet() == true && client->getIsNickSet() == true) {
 		client->setRegister(true);

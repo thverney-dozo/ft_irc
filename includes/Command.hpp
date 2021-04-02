@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/23 19:21:49 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/30 11:33:41 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/04/02 08:54:33 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,8 @@ void	cmd_nick(std::vector<std::string> split, Server *serv, Client *client);
 void	cmd_user(std::vector<std::string> split, Server *serv, Client *client);
 void	cmd_quit(std::vector<std::string> split, Server *serv, Client *client);
 void	cmd_part(std::vector<std::string> split, Server *serv, Client *client);
-
+void	cmd_topic(std::vector<std::string> split, Server *serv, Client *client);
+void	cmd_list(std::vector<std::string> split, Server *serv, Client *client);
 
 
 class Command
