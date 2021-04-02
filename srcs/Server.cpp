@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/02 15:07:22 by thverney         ###   ########.fr       */
+/*   Updated: 2021/04/02 16:40:49 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,8 @@ void    Server::deconnexion(int fd_i)
 
 void    Server::receiveFromClient(int fd_i, int len_buf)
 {
-    this->buf[len_buf - 1] = '\0';
+	if (len_buf > 0)
+    	this->buf[len_buf - 1] = '\0';
 	std::cout << buf << std::endl;
 	
     std::vector<Client*>::iterator ite = this->clients.end();
@@ -122,19 +123,15 @@ void    Server::receiveFromClient(int fd_i, int len_buf)
 				//check if client input is a command, if it is not, we put what the client said
 				//in a string and we resend it to other channels / clients.
 				std::vector<std::string> splited_cmd = ft_split(buf); // equivalent à un char ** de retour de split
+				if (splited_cmd.empty())
+					break;
 				std::map<std::string, Command>::iterator find_cmd = this->cmd.find(splited_cmd[0]); // Cherche la command
 				if (find_cmd != cmd.end())
 					(*find_cmd).second.exe(splited_cmd, this, (*it)); // execute la command si elle existe
 				else if (find_cmd == cmd.end())
 				{
-					if ((*it)->getCurrentChan() != "nullptr")
-						write((*it)->getFd(), "\033[A\33[2KT\r", 3); // to erase what client wrote on the fd
 					std::cout << buf << std::endl;
 					clientWriteOnChannel((*it)->getCurrentChan(), buf, (*it));
-				}
-				else
-				{
-					write((*it)->getFd(), "\033[A\33[2KT\r", 3); // to erase what client wrote on the fd
 				}
 			}
             break;

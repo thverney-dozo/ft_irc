@@ -46,11 +46,11 @@ int 	main(int ac, char **av)
 				   args.host_ip,
 				   args.host_port.c_str(),
 				   args.host_password); // all setup in the construction
-	std::cout << "host_ip " << server.getHostIp() << std::endl;
-	std::cout << "host_port " << server.getHostPort() << std::endl;
-	std::cout << "host_password " << server.getHostPassword() << std::endl;
-	std::cout << "Localport " << server.getLocalPort() << std::endl;
-	std::cout << "Localpassword " << server.getLocalPassword() << std::endl;
+	std::cout << "host_ip :" << server.getHostIp() << std::endl;
+	std::cout << "host_port :" << server.getHostPort() << std::endl;
+	std::cout << "host_password :" << server.getHostPassword() << std::endl;
+	std::cout << "Localport :" << server.getLocalPort() << std::endl;
+	std::cout << "Localpassword :" << server.getLocalPassword() << std::endl;
 
 	handle_connection(&server);
 	close(server.getServSock());
