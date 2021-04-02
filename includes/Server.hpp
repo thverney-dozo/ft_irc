@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/31 08:32:21 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/04/02 15:06:17 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,14 @@ class Server
 {
     private:
         int                     		serv_sock;
-        char                    		*port;
         struct sockaddr_in      		serv_adr;
         int                     		client_nb;
         char                    		buf[1024];
-        std::string             		password;
+        std::string                     host_port;     // host
+        std::string                     local_port;
+        std::string             		local_password;
+        std::string                     host_ip;        // host
+        std::string                     host_password;  // host
         std::vector<Client*>    		clients;
         fd_set                  		reads;
         fd_set                  		cpy_reads;
@@ -44,13 +47,18 @@ class Server
 
     public:
         Server();
-        Server(char *port, std::string const &password);
+        Server(std::string const &local_port, std::string const &local_password, std::string const &host_ip,
+			   std::string const &host_port, std::string const &host_password);
         virtual ~Server();
 
         /******************* getters ******************/
         int                     getServSock() const;
         int                     getFdMax() const;
-        std::string const       &getPassword() const;
+        std::string const       &getHostIp() const;        // host
+        std::string const       &getHostPort() const;     // host
+        std::string const       &getHostPassword() const;  
+        std::string const       &getLocalPort() const;
+        std::string const       &getLocalPassword() const;
         fd_set                  getReads();
         fd_set                  getCpyReads();
         fd_set                  *getReads_addr();
@@ -60,7 +68,7 @@ class Server
         /**********************************************/
 
         // ########### Setup #############
-        void    setup_server(char *port);
+        void    setup_server(std::string const &port);
 		void	init_commands();
 
         

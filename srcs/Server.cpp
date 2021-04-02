@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/02 08:55:20 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/04/02 15:07:22 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,27 @@
 Server::Server() // quand on nous envera pas d'info donc il faudra créer le serveur
 {}
 
-Server::Server(char *port, std::string const &password) : port(port), password(password)
+Server::Server(std::string const &local_port, std::string const &local_password, std::string const &host_ip,
+			   std::string const &host_port, std::string const &host_password)
 {
-    setup_server(this->port);
+	this->local_port = local_port;
+	this->local_password = local_password;
+
+	if (!host_ip.empty() && !host_port.empty())
+	{
+		this->host_ip = host_ip;
+		this->host_port = host_port;
+		this->host_password = host_password;
+	}
+
+    setup_server(this->local_port.c_str());
 	init_commands();
 }
 
 Server::~Server()
 {}
 
-void     Server::setup_server(char *port)
+void     Server::setup_server(std::string const &port)
 {
 	struct sockaddr_in serv_adr;
     int enable = 1;
@@ -35,7 +46,7 @@ void     Server::setup_server(char *port)
     
 	serv_adr.sin_family = AF_INET; 					// Internet address
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);	// Specify that server will respond to any address
-	serv_adr.sin_port = htons(atoi(port)); 		    // Server will listen to this port
+	serv_adr.sin_port = htons(atoi(port.c_str())); 		    // Server will listen to this port
 	
 	check_error(bind(this->serv_sock, (struct sockaddr*)&serv_adr, sizeof(serv_adr)), "bind() error"); // bind
 	check_error(listen(this->serv_sock, 5), "listen() error");
@@ -363,10 +374,29 @@ char     *Server::getBuf()
 {
     return (this->buf);
 }
-
-std::string const &Server::getPassword() const
+std::string const       &Server::getHostIp() const
 {
-    return (this->password);
+	return (this->host_ip);
+}
+
+std::string const       &Server::getHostPort() const
+{
+	return (this->host_port);
+}
+
+std::string const       &Server::getHostPassword() const
+{
+	return (this->host_password);
+}
+
+std::string const       &Server::getLocalPort() const
+{
+	return (this->local_port);
+}
+
+std::string const 		&Server::getLocalPassword() const
+{
+    return (this->local_password);
 }
 
 fd_set      Server::getReads()
