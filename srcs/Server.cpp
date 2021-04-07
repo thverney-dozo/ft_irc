@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/02 16:40:49 by thverney         ###   ########.fr       */
+/*   Updated: 2021/04/07 11:41:40 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,8 +108,7 @@ void    Server::receiveFromClient(int fd_i, int len_buf)
 {
 	if (len_buf > 0)
     	this->buf[len_buf - 1] = '\0';
-	std::cout << buf << std::endl;
-	
+	std::cout << buf << std::endl;	
     std::vector<Client*>::iterator ite = this->clients.end();
     for (std::vector<Client*>::iterator it = this->clients.begin(); it != ite; ++it) // find my client
 	{
@@ -213,50 +212,32 @@ void	Server::init_commands()
 
 void    Server::registration(Client *client, char *buf)
 {
-
 	std::vector<std::string> splited_cmd = ft_split(buf);
-	if (splited_cmd.empty()) {
-		fdwrite(client->getFd(), "You need to register(/pass, /nick, /user)\n");
-		return;
-	}
-	if (!buf || !buf[0] || splited_cmd[0].empty() || (splited_cmd[0].compare("/pass") != 0 
-	&& splited_cmd[0].compare("/nick") != 0 && splited_cmd[0].compare("/user") != 0
-	&& splited_cmd[0].compare("nick") && splited_cmd[0].compare("user") != 0
-	&& splited_cmd[0].compare("pass") != 0
-	&& splited_cmd[0].compare("NICK") && splited_cmd[0].compare("USER") != 0
-	&& splited_cmd[0].compare("PASS") != 0))
+	int i = 0;
+	for (size_t j = 0; j != splited_cmd.size(); j++)
 	{
-		fdwrite(client->getFd(), "You need to register with the following input (3 steps):   ");
-		if (client->getIsPassSet() == false)
-			fdwrite(client->getFd(), "1. \"/pass ...\"\n");
-		else if (client->getIsNickSet() == false)
-			fdwrite(client->getFd(), "2. \"/nick ...\"\n");
-		else if (client->getIsUserSet() == false)
-			fdwrite(client->getFd(), "3. \"/user ...\"\n");
-	}
-
-	if (client->getIsPassSet() == false && ((splited_cmd[0].compare("/pass") == 0)  || (splited_cmd[0].compare("pass") == 0) || (splited_cmd[0].compare("PASS") == 0)))
-	{
-        pass_register_step(client, splited_cmd);
-		if (client->getIsPassSet() == true) {
-			fdwrite(client->getFd(), "You need to register with the following input (3 steps):   ");
-			fdwrite(client->getFd(), "2. \"/nick ...\"\n");
+		std::vector<std::string> splited_cmd = ft_split(buf); // equivalent à un char ** de retour de split
+		if (splited_cmd.empty())
+			break;
+		if (splited_cmd[j].compare("CAP") == 0 || splited_cmd[j].compare("LS") == 0)
+			i++;
+		if (splited_cmd[j].compare("user") != 0 && splited_cmd[j].compare("USER") != 0 && splited_cmd[j].compare("/user") != 0 && splited_cmd[j].compare("NICK") != 0 &&
+			splited_cmd[j].compare("nick") != 0 && splited_cmd[j].compare("/nick") != 0)
+			continue;
+		std::map<std::string, Command>::iterator find_cmd = this->cmd.find(splited_cmd[j]); // Cherche la command
+		if (find_cmd != cmd.end())
+		{
+			i++;
+			std::vector<std::string> cmds;
+			cmds.push_back(splited_cmd[j]);
+			cmds.push_back(splited_cmd[j + 1]);
+			(*find_cmd).second.exe(cmds, this, client); // execute la command si elle existe
 		}
 	}
-	else if (client->getIsNickSet() == false && ((splited_cmd[0].compare("/nick") == 0)  || (splited_cmd[0].compare("nick") == 0) || (splited_cmd[0].compare("NICK") == 0)))
-	{    // client needs to input server's password
-		nick_register_step(client, splited_cmd);
-		if (client->getIsNickSet() == true) {
-			fdwrite(client->getFd(), "You need to register with the following input (3 steps):   ");
-			fdwrite(client->getFd(), "3. \"/user ...\"\n");
-		}
-	}
-	else if (client->getIsUserSet() == false && ((splited_cmd[0].compare("/user") == 0) || (splited_cmd[0].compare("user") == 0) || (splited_cmd[0].compare("USER") == 0)))	   // client needs to input server's password
-        user_register_step(client, splited_cmd);
-	if (client->getIsPassSet() == true && client->getIsUserSet() == true && client->getIsNickSet() == true) {
+	if (client->getIsNickSet() == true && client->getIsUserSet() == true)
 		client->setRegister(true);
-		fdwrite(client->getFd(), "Registration done !\n");
-	}
+	else if (i == 0)
+		fdwrite(client->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
 }
 
 
