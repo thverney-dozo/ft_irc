@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/07 11:41:40 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/04/09 12:32:01 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,6 +216,8 @@ void    Server::registration(Client *client, char *buf)
 	int i = 0;
 	for (size_t j = 0; j != splited_cmd.size(); j++)
 	{
+		//Check si la commande envoyee par le client est user || nick || cap ls pr recupererer les infos de capabilities du server
+		//Si c'est aucun de ceux la, renvoie une erreur
 		std::vector<std::string> splited_cmd = ft_split(buf); // equivalent à un char ** de retour de split
 		if (splited_cmd.empty())
 			break;
@@ -230,7 +232,13 @@ void    Server::registration(Client *client, char *buf)
 			i++;
 			std::vector<std::string> cmds;
 			cmds.push_back(splited_cmd[j]);
-			cmds.push_back(splited_cmd[j + 1]);
+			if (splited_cmd[j].compare("NICK") == 0 || splited_cmd[j].compare("nick") == 0 || splited_cmd[j].compare("/nick") == 0)
+				cmds.push_back(splited_cmd[j + 1]);
+			if (splited_cmd[j].compare("USER") == 0 || splited_cmd[j].compare("user") == 0 || splited_cmd[j].compare("/user") == 0)
+				{
+					while (j != splited_cmd.size() - 1)
+						cmds.push_back(splited_cmd[++j]);
+				}
 			(*find_cmd).second.exe(cmds, this, client); // execute la command si elle existe
 		}
 	}
@@ -239,40 +247,6 @@ void    Server::registration(Client *client, char *buf)
 	else if (i == 0)
 		fdwrite(client->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
 }
-
-
-
-
-void    Server::pass_register_step(Client *client, std::vector<std::string> splited_cmd)
-{
-	cmd_pass(splited_cmd, this, client);
-	if (client->getIsPassSet() == true)
-		fdwrite(client->getFd(), "pass step done\n");
-	else
-		fdwrite(client->getFd(), "failed pass step\n");
-	
-}
-
-void    Server::nick_register_step(Client *client, std::vector<std::string> splited_cmd)
-{
-	cmd_nick(splited_cmd, this, client);
-	if (client->getIsPassSet() == true)
-		fdwrite(client->getFd(), "nick step done\n");
-	else
-		fdwrite(client->getFd(), "failed nick step\n");
-}
-
-void    Server::user_register_step(Client *client, std::vector<std::string> splited_cmd)
-{
-	cmd_user(splited_cmd, this, client);
-	if (client->getIsPassSet() == true)
-		fdwrite(client->getFd(), "user step done\n");
-	else
-		fdwrite(client->getFd(), "failed user step\n");
-}
-
-
-
 
 void    Server::check_error(int ret, std::string const &str)
 {

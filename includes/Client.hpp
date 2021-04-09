@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/15 22:20:45 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/31 08:56:47 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/04/09 11:54:28 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,9 @@ class   Client
         std::string         nickname;
         std::string         password;
         std::string         username;
+		std::string			real_name;
+		std::string			host_name;
+		std::string			server_name;
 		bool				  is_connected;
         /*****************************/
 
@@ -46,6 +49,9 @@ class   Client
 		bool                is_nick_set;
 		bool                is_user_set;
         bool                is_register;
+		bool				serv_name_set;
+		bool				host_name_set;
+		bool				real_name_set;
         /********************************/
 
         Client(Client const &cpy);
@@ -69,11 +75,17 @@ class   Client
         bool                getIsRegister()         const;
         bool                getIsServer()           const;
 		bool				getConnectionStatus() const;
+		bool				getIsHostName() const;
+		bool				getIsServName() const;
+		bool				getIsRealName() const;
         std::string const   &getName()              const;
         std::string const   &getPassword()          const;
         std::string const   &getUsername()          const;
         std::string const   &getNickname()          const;
 		std::string const   &getCurrentChan()       const;
+		std::string const &getRealName() const;
+		std::string const &getServName() const;
+		std::string const &getHostName() const;
 		int                 getPass(std::string password, int clnt_sock, char tmp[1024]);
         // ***********************************************************************
 
@@ -83,6 +95,12 @@ class   Client
         void                setPassword(std::string const &password);
         void                setUsername(std::string const &usename);
         void                setNickname(std::string const &nickname);
+		void				setHostName(std::string const &hostname);
+		void				setServerName(std::string const &servername);
+		void				setRealName(std::string const &realname);
+		void				setHostName(bool is_set);
+		void				setServerName(bool is_set);
+		void				setRealName(bool is_set);
         void                setPassSet(bool is_set);
         void                setNickSet(bool is_set);
         void                setUserSet(bool is_set);

@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:19:44 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/03/31 09:04:13 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/04/09 11:56:34 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,12 @@ std::string const  &Client::getCurrentChan()    const   { return (this->current_
 std::string const  &Client::getName()           const   { return (this->nickname); }
 std::string const  &Client::getPassword()       const   { return (this->password); }
 std::string const  &Client::getUsername()       const   { return (this->username); }
+std::string const &Client::getServName() const { return server_name; }
+std::string const &Client::getHostName() const { return host_name; }
+std::string const &Client::getRealName() const { return real_name; }
+bool				Client::getIsHostName() const { return host_name_set; }
+bool				Client::getIsServName() const { return serv_name_set; }
+bool				Client::getIsRealName() const { return real_name_set; }
 bool                Client::getIsServer()       const   { return (this->is_server); }
 bool                Client::getIsPassSet()      const   { return (this->is_pass_set); }
 bool                Client::getIsNickSet()      const   { return (this->is_nick_set); }
@@ -67,8 +73,14 @@ void                Client::setPassSet(bool is_set)                        { thi
 void                Client::setNickSet(bool is_set)                        { this->is_nick_set = is_set; }
 void                Client::setUserSet(bool is_set)                        { this->is_user_set = is_set; }
 void                Client::setRegister(bool is_set)                       { this->is_register = is_set; }
+void                Client::setHostName(bool is_set)                       { this->host_name_set = is_set; }
+void                Client::setServerName(bool is_set)                       { this->serv_name_set = is_set; }
+void                Client::setRealName(bool is_set)                       { this->real_name_set = is_set; }
 
 void                Client::setIsServer(bool is_serv)                   { this->is_server = is_serv; }
+void				Client::setHostName(std::string const &hostname) { host_name = hostname; }
+void				Client::setServerName(std::string const &servername) { server_name = servername; }
+void				Client::setRealName(std::string const &realname) { real_name = realname; }
 void				Client::setCurrentChan(std::string const &name)     { this->current_channel = name; }
 void                Client::setName(std::string const &name)            { this->nickname = name; }
 void                Client::setPassword(std::string const &password)    { this->password = password; }
