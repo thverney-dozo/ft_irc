@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/13 15:39:31 by thverney         ###   ########.fr       */
+/*   Updated: 2021/04/13 16:46:26 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,13 +61,18 @@ void	Server::setup_host_connexion()
 	// A REMPLACER PAR UNE FONCTION AUTORISEE !!!!!!!!
 	
 	check_error(connect(this->host_sock, (struct sockaddr *)&host_adr, sizeof(host_adr)), "ERROR host connect");
+	
+	send(this->host_sock, ":myserv /PASS pass_oui\n", 24, 0);
+	send(this->host_sock, ":myserv /USER user_oui\n", 24, 0);
+	send(this->host_sock, ":myserv /NICK nick_oui\n", 24, 0);
 	// fcntl(this->host_sock, F_SETFL, O_NONBLOCK);
 	
 	Client *new_client = new Client(this->host_sock, host_adr, sizeof(host_adr));
 	new_client->setIsServer(true); 
 	this->clients.push_back(new_client);
 	FD_SET(this->host_sock, &(this->reads));
-	this->fd_max = this->host_sock;
+	if (this->fd_max < this->host_sock)
+		this->fd_max = this->host_sock;
 	// char *buffer_host;
 	// recv(this->host_sock, &buffer_host, 6000, 0);
 	// std::cout << "|+0+|" << buffer_host << "|+0+|" << std::endl;
@@ -167,7 +172,11 @@ void    Server::receiveFromClient(int fd_i, int len_buf)
 				std::vector<std::string> splited_cmd = ft_split(buf); // equivalent à un char ** de retour de split
 				if (splited_cmd.empty())
 					break;
-				std::map<std::string, Command>::iterator find_cmd = this->cmd.find(splited_cmd[0]); // Cherche la command
+				std::map<std::string, Command>::iterator find_cmd;
+				if (splited_cmd[0][0] == ':' && !splited_cmd[1].empty()) // si un serveur envoie des infos ":nomDuServ /CMD ..."
+					find_cmd = this->cmd.find(splited_cmd[1]); // Cherche la command extra-server
+				else
+					find_cmd = this->cmd.find(splited_cmd[0]); // Cherche la command intra-server
 				if (find_cmd != cmd.end())
 					(*find_cmd).second.exe(splited_cmd, this, (*it)); // execute la command si elle existe
 				else if (find_cmd == cmd.end())
@@ -287,7 +296,7 @@ void    Server::registration(Client *client, char *buf)
 	}
 	if (client->getIsNickSet() == true && client->getIsUserSet() == true)
 		client->setRegister(true);
-	else if (i == 0)
+	else if (i == 0 && !buf[0])
 		fdwrite(client->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
 }
 
