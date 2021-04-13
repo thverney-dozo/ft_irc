@@ -104,12 +104,18 @@ t_pre_parse	args_parse(int ac, char **av)
 	t_pre_parse ret;
 
 	std::string my_arg = av[1];
+	
 	size_t start = my_arg.find(':');
 	size_t end = my_arg.rfind(':');
-
+	int dotes = 0;
+	for (std::string::iterator it = my_arg.begin(); it != my_arg.end(); ++it)
+		if ((*it) == ':')
+			dotes++;
+	if (dotes > 2)
+		print_usage();
 	if (start == std::string::npos)
 	{
-		if (av[3])
+		if (ac > 2)
 			print_usage();
 		ret.local_port = av[1];
 		if (av[2])

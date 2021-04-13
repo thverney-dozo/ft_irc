@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/09 12:32:01 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/04/13 15:39:31 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,52 @@ Server::Server(std::string const &local_port, std::string const &local_password,
 		this->host_port = host_port;
 		this->host_password = host_password;
 	}
-
     setup_server(this->local_port.c_str());
+	
+	if (!host_ip.empty() && !host_port.empty())
+		setup_host_connexion();
+	
 	init_commands();
+}
+
+void	Server::setup_host_connexion()
+{
+	/*
+	1. create a socket.
+	2. bind* - this is probably be unnecessary because you're the client, not the server.
+	3. connect to a server.
+	4. send/recv - repeat until we have or receive data
+	5. shutdown to end read/write.
+	6. close to releases data.
+	*/
+    int enable = 1;
+	struct sockaddr_in host_adr;
+
+
+	check_error((this->host_sock = socket(AF_INET, SOCK_STREAM, 0)), "ERROR host socket");
+	// fcntl(this->host_sock, F_SETFL, O_NONBLOCK);
+	check_error(setsockopt(this->host_sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)), "host_sock can't be used");
+	host_adr.sin_family = AF_INET;
+  	host_adr.sin_port = htons(atoi(this->host_port.c_str()));
+  	struct hostent *host_info = gethostbyname(this->host_ip.c_str());
+	
+	// A REMPLACER PAR UNE FONCTION AUTORISEE !!!!!!!!
+	memcpy (&host_adr.sin_addr, host_info->h_addr_list[0], host_info->h_length);
+	// A REMPLACER PAR UNE FONCTION AUTORISEE !!!!!!!!
+	
+	check_error(connect(this->host_sock, (struct sockaddr *)&host_adr, sizeof(host_adr)), "ERROR host connect");
+	// fcntl(this->host_sock, F_SETFL, O_NONBLOCK);
+	
+	Client *new_client = new Client(this->host_sock, host_adr, sizeof(host_adr));
+	new_client->setIsServer(true); 
+	this->clients.push_back(new_client);
+	FD_SET(this->host_sock, &(this->reads));
+	this->fd_max = this->host_sock;
+	// char *buffer_host;
+	// recv(this->host_sock, &buffer_host, 6000, 0);
+	// std::cout << "|+0+|" << buffer_host << "|+0+|" << std::endl;
+	// send(this->host_sock, "je me coco\n", 12, 0);
+	std::cout << "Fin du programme (code 12)" << std::endl;
 }
 
 Server::~Server()
@@ -40,13 +83,13 @@ void     Server::setup_server(std::string const &port)
 	struct sockaddr_in serv_adr;
     int enable = 1;
 
-	check_error((this->serv_sock = socket(AF_INET, SOCK_STREAM, 0)), "ERROR opening socket") ; 	// Create server's FD
+	check_error((this->serv_sock = socket(AF_INET, SOCK_STREAM, 0)), "ERROR opening socket"); 	// Create server's FD
 	check_error(setsockopt(this->serv_sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)), "serv_sock can't be used");
 	memset(&serv_adr, 0, sizeof(serv_adr));
     
 	serv_adr.sin_family = AF_INET; 					// Internet address
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);	// Specify that server will respond to any address
-	serv_adr.sin_port = htons(atoi(port.c_str())); 		    // Server will listen to this port
+	serv_adr.sin_port = htons(atoi(port.c_str())); 	// Server will listen to this port
 	
 	check_error(bind(this->serv_sock, (struct sockaddr*)&serv_adr, sizeof(serv_adr)), "bind() error"); // bind
 	check_error(listen(this->serv_sock, 5), "listen() error");

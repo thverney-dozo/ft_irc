@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/07 09:46:26 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/04/13 12:45:37 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,10 @@
 # define SERVER_HPP
 
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <iostream>
 #include <sys/time.h>
+#include <fcntl.h>
 #include <cstring>
 #include "Client.hpp"
 #include "Channel.hpp"
@@ -26,6 +28,7 @@ class Server
 {
     private:
         int                     		serv_sock;
+        int                     		host_sock;
         struct sockaddr_in      		serv_adr;
         int                     		client_nb;
         char                    		buf[1024];
@@ -69,6 +72,7 @@ class Server
 
         // ########### Setup #############
         void    setup_server(std::string const &port);
+        void	setup_host_connexion();
 		void	init_commands();
 
         
