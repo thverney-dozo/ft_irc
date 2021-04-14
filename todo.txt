@@ -13,3 +13,6 @@ EN PRIORITE
 -Faudrait faire en sorte que notre serveur fonctionne comme nimporte quel autre avec des clients irc mais aucune putain d'idee de comment faire 
 ( j'utilise xChat et ca fonctionne pas du tout pareil);
 -Y a tjs un ptit segfault quand tu fais entree sans rien mettre faudrait chekc pk et s'en occuper
+
+
+inter-serveur

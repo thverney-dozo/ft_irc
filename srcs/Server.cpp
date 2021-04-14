@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/13 16:46:26 by thverney         ###   ########.fr       */
+/*   Updated: 2021/04/14 16:26:40 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,21 +50,19 @@ void	Server::setup_host_connexion()
 
 
 	check_error((this->host_sock = socket(AF_INET, SOCK_STREAM, 0)), "ERROR host socket");
-	// fcntl(this->host_sock, F_SETFL, O_NONBLOCK);
 	check_error(setsockopt(this->host_sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)), "host_sock can't be used");
 	host_adr.sin_family = AF_INET;
   	host_adr.sin_port = htons(atoi(this->host_port.c_str()));
   	struct hostent *host_info = gethostbyname(this->host_ip.c_str());
 	
 	// A REMPLACER PAR UNE FONCTION AUTORISEE !!!!!!!!
-	memcpy (&host_adr.sin_addr, host_info->h_addr_list[0], host_info->h_length);
+	memcpy(&host_adr.sin_addr, host_info->h_addr_list[0], host_info->h_length);
 	// A REMPLACER PAR UNE FONCTION AUTORISEE !!!!!!!!
 	
 	check_error(connect(this->host_sock, (struct sockaddr *)&host_adr, sizeof(host_adr)), "ERROR host connect");
 	
-	send(this->host_sock, ":myserv /PASS pass_oui\n", 24, 0);
-	send(this->host_sock, ":myserv /USER user_oui\n", 24, 0);
-	send(this->host_sock, ":myserv /NICK nick_oui\n", 24, 0);
+	// send(this->host_sock, ":myserv /PASS pass_oui\n", 24, 0);
+	send(this->host_sock, ":myserv SERVER test.oulu.fi 1 :[tolsun.oulu.fi]\n:myserv USER thio0247 bahhjsp okbg :theo gaetan\n:myserv NICK thio0247 bahhjsp okbg :theo gaetan\n", 145, 0);
 	// fcntl(this->host_sock, F_SETFL, O_NONBLOCK);
 	
 	Client *new_client = new Client(this->host_sock, host_adr, sizeof(host_adr));
@@ -111,7 +109,8 @@ int     Server::detection_select()
     this->timeout.tv_sec = 5;
 	this->timeout.tv_usec = 5000;
     ret = select(this->fd_max + 1, &(this->cpy_reads), 0 , 0, &(this->timeout));
-
+	// if (ret)
+	// 	std::cout << "Select triggered " << ret << std::endl;
     return ret;
 }
 
@@ -181,6 +180,7 @@ void    Server::receiveFromClient(int fd_i, int len_buf)
 					(*find_cmd).second.exe(splited_cmd, this, (*it)); // execute la command si elle existe
 				else if (find_cmd == cmd.end())
 				{
+					std::cout << "Bon bah ca marche plus" << std::endl;
 					std::cout << buf << std::endl;
 					clientWriteOnChannel((*it)->getCurrentChan(), buf, (*it));
 				}
@@ -296,7 +296,7 @@ void    Server::registration(Client *client, char *buf)
 	}
 	if (client->getIsNickSet() == true && client->getIsUserSet() == true)
 		client->setRegister(true);
-	else if (i == 0 && !buf[0])
+	else if (i == 0)
 		fdwrite(client->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
 }
 
