@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/16 18:22:41 by thverney         ###   ########.fr       */
+/*   Updated: 2021/04/19 14:13:05 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,8 @@ void	Server::setup_host_connexion()
 
 	Client *new_client = new Client(this->host_sock, host_adr, sizeof(host_adr));
 	new_client->setIsServer(true); 
-	this->clients.push_back(new_client);
+	// this->clients.push_back(new_client);
+	this->clients.insert(std::pair<int, Client*>(this->host_sock, new_client));
 	FD_SET(this->host_sock, &(this->reads));
 	if (this->fd_max < this->host_sock)
 		this->fd_max = this->host_sock;
@@ -101,8 +102,8 @@ int     Server::detection_select()
     this->timeout.tv_sec = 5;
 	this->timeout.tv_usec = 5000;
     ret = select(this->fd_max + 1, &(this->cpy_reads), 0 , 0, &(this->timeout));
-	if (ret)
-		std::cout << "Select triggered " << ret << std::endl;
+	// if (ret)
+	// 	std::cout << "Select triggered " << ret << std::endl;
     return ret;
 }
 
@@ -115,10 +116,11 @@ void     Server::connexion()
     client_socket = accept(this->serv_sock, (struct sockaddr*)&clnt_adr, &adr_sz);
     
     if (client_socket != -1)
-	{
+	{			
+		fcntl(client_socket, F_SETFL, O_NONBLOCK);
 		Client *new_client = new Client(client_socket, clnt_adr, adr_sz);
 		new_client->setIsServer(false); 									// IMPORTANT à gerer:  valeur par defaul de client 
-		clients.push_back(new_client);
+		this->clients.insert(std::pair<int, Client*>(client_socket, new_client));
 		FD_SET(client_socket, &(this->reads));
 		std::cout << "[Client connected]" << std::endl;
 		new_client->setConnectionStatus(true);
@@ -132,81 +134,66 @@ void    Server::deconnexion(int fd_i)
     FD_CLR(fd_i, &reads);
 	close(fd_i);
 	std::cout << "[Client disconnected] (";
-	std::vector<Client*>::iterator ite = clients.end();
-	for (std::vector<Client*>::iterator it = clients.begin(); it != ite; ++it) // find my client
+	std::cout << this->clients.find(fd_i)->second->getName() << ")" << std::endl;
+	this->clients.erase(fd_i);
+}
+
+int		Server::find_cmd(std::string data, Client *Sender)
+{
+	std::vector<std::string> splited_cmd = ft_split_cmd(data);
+
+	if (splited_cmd[0][0] == ':' && !splited_cmd[1].empty() && this->cmd.find(splited_cmd[1]) != this->cmd.end()) // si un serveur envoie des infos ":nomDuServ /CMD ..."
 	{
-		if (fd_i == (*it)->getFd()) {
-			std::cout << (*it)->getName() << ")" << std::endl;
-			clients.erase(it);
-			break;
-		}
+		this->cmd.find(splited_cmd[1])->second.exe(splited_cmd, this, Sender); // execute la command si elle existe
+		return (1);
 	}
+	else if (!splited_cmd[0].empty() && this->cmd.find(splited_cmd[0]) != this->cmd.end())
+	{
+		this->cmd.find(splited_cmd[0])->second.exe(splited_cmd, this, Sender); // execute la command si elle existe
+		return (1);
+	}
+	return (0);
+}
+
+void	Server::send_data_to_network(std::vector<std::string>::iterator data_cursor)
+{
+	std::map<int, Client*>::iterator ite_serv = this->clients.end();
+	
+	for (std::map<int, Client*>::iterator it_serv = this->clients.begin(); it_serv != ite_serv; ++it_serv)
+		if ((*it_serv).second->getIsServer() == true)
+			send(this->host_sock, (*data_cursor).c_str(), sizeof((*data_cursor)), 0);
+	
 }
 
 void    Server::receiveFromClient(int fd_i)
 {
 
 	// /*
-    std::vector<Client*>::iterator ite = this->clients.end();
-    for (std::vector<Client*>::iterator it = this->clients.begin(); it != ite; ++it) // find my client
+	Client *Sender = this->clients.find(fd_i)->second;
+	if (fd_i == Sender->getFd() && Sender->getFd() == host_sock)
 	{
-		if ((*it)->getFd() == host_sock)
-			break;
-		if (fd_i == (*it)->getFd() && fd_i != serv_sock)
+		std::cout << this->clients_buffer[fd_i];
+	}
+	if (fd_i == Sender->getFd() && Sender->getFd() != host_sock)
+	{
+		std::cout << this->clients_buffer[fd_i];
+		std::vector<std::string> splited_by_line_recv_data = ft_split_recv_data(this->clients_buffer[fd_i]);
+		std::vector<std::string>::iterator data_end = splited_by_line_recv_data.end();
+		for (std::vector<std::string>::iterator data_cursor = splited_by_line_recv_data.begin(); data_cursor != data_end; ++data_cursor)
 		{
-			std::cout << "{BEGIN OF BUF}"<< (*it)->getClientBuf() << "{END OF BUF}" << std::endl;
-			// std::cout << "{123456789}" << buf << "{abcd}" << std::endl;s
-			std::vector<std::string> splited_recv_data = ft_split_recv_data((*it)->getClientBuf());
-			// std::cout << "{+++|" << splited_recv_data[0] << "|+++}" << std::endl;
-			// std::cout << "{+++|" << splited_recv_data[1] << "|+++}" << std::endl;
-			// std::cout << "{+++|" << splited_recv_data[2] << "|+++}" << std::endl;
-			
-			std::vector<std::string>::iterator it_split_data = splited_recv_data.begin();
-			while (it_split_data != splited_recv_data.end())
+			// std::cout << "THE SPLITED DATA [" << (*data_cursor) << "]" << std::endl;
+			if (Sender->getIsRegister() == false)
+				registration(Sender, (*data_cursor).c_str());
+			else if (find_cmd((*data_cursor), Sender)) // return if cmd was found and launched
+				return;
+			else
 			{
-				// std::cout << "{-------}" << std::endl;
-				// std::cout << "THE SPLITED DATA [" << (*it_split_data) << "]" << std::endl;
-				if ((*it)->getIsRegister() == false)
-					registration((*it), (*it_split_data).c_str());
-				else
-				{
-					std::string name = (*it)->getName();
-					//check if client input is a command, if it is not, we put what the client said
-					//in a string and we resend it to other channels / clients.
-					std::vector<std::string> splited_cmd = ft_split_cmd((*it_split_data));
-					if (splited_cmd.empty())
-						break;
-					std::map<std::string, Command>::iterator find_cmd;
-					if (splited_cmd[0][0] == ':' && !splited_cmd[1].empty()) // si un serveur envoie des infos ":nomDuServ /CMD ..."
-					{
-						find_cmd = this->cmd.find(splited_cmd[1]); // Cherche la command extra-server
-						// std::cout << "Je suis la avec [" << splited_cmd[1] << "] en commande" << std::endl;
-					}
-					else
-						find_cmd = this->cmd.find(splited_cmd[0]); // Cherche la command intra-server
-					if (find_cmd != cmd.end())
-					{
-						// std::cout << "the cmd :" << (*find_cmd).first << std::endl;
-						(*find_cmd).second.exe(splited_cmd, this, (*it)); // execute la command si elle existe
-					}
-					else if (find_cmd == cmd.end())
-					{
-						std::vector<Client*>::iterator ite_serv = this->clients.end();
-						for (std::vector<Client*>::iterator it_serv = this->clients.begin(); it_serv != ite_serv; ++it_serv)
-						{
-							if ((*it_serv)->getIsServer() == true)
-								send(this->host_sock, (*it_split_data).c_str(), sizeof((*it_split_data)), 0);
-						}
-						clientWriteOnChannel((*it)->getCurrentChan(), (*it_split_data), (*it));
-					}
-				}
-				++it_split_data;
+				send_data_to_network(data_cursor);
+				clientWriteOnChannel(Sender->getCurrentChan(), (*data_cursor), Sender);
 			}
-			
-			if ((*it)->getIsRegister() == false)
-				fdwrite((*it)->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
-            break;
 		}
+		if (Sender->getIsRegister() == false)
+			fdwrite(Sender->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
 	}
 	// */
 }
@@ -375,14 +362,6 @@ std::vector<std::string>	Server::ft_split_recv_data(std::string data)
 
 	if (data.empty())
 		return std::vector<std::string>();
-	// if ((pos = data.find_last_not_of("\n")) != std::string::npos)
-	// 	data.erase(pos + 1);
-	// else
-	// 	return (split);
-	// if ((pos = data.find_first_not_of("\n")) != std::string::npos)
-	// 	data = data.substr(pos);
-	// else
-	// 	return (split);
 	while ((pos = data.find_first_of("\n")) != std::string::npos)
 	{
 		// std::cout << "{+++++++}" << std::endl;
@@ -471,7 +450,7 @@ fd_set      *Server::getCpyReads_addr()
     return (&(this->cpy_reads));
 }
 
-std::vector<Client*>    Server::getClients()
+std::map<int, Client*>    Server::getClients()
 {
     return (this->clients);
 }

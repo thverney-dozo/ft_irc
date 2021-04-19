@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:19:44 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/16 18:18:21 by thverney         ###   ########.fr       */
+/*   Updated: 2021/04/19 10:01:27 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,8 +90,8 @@ void                Client::setPassword(std::string const &password)    { this->
 void                Client::setNickname(std::string const &nickname)    { this->nickname = nickname; }
 void                Client::setUsername(std::string const &username)    { this->username = username; }
 void				Client::setConnectionStatus(bool is_connected) 		{ this->is_connected = is_connected; }
-void				Client::addToClientBuffer(std::string const &buf) 	{ this->client_buf += buf; }
-void				Client::clearClientBuf() 							{ this->client_buf = ""; }
+void				Client::addToClientBuffer(const char *buf) 			{ this->client_buf += buf; }
+void				Client::clearClientBuf() 							{ this->client_buf.clear(); }
 
 
 /*void    Client::clear_info()

@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/16 18:21:50 by thverney         ###   ########.fr       */
+/*   Updated: 2021/04/19 13:46:49 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ class Server
         std::string             		local_password;
         std::string                     host_ip;        // host
         std::string                     host_password;  // host
-        std::vector<Client*>    		clients;
+        std::map<int, Client*>          clients;
         fd_set                  		reads;
         fd_set                  		cpy_reads;
         int                     		fd_max;
@@ -52,6 +52,7 @@ class Server
         Server(std::string const &local_port, std::string const &local_password, std::string const &host_ip,
 			   std::string const &host_port, std::string const &host_password);
         virtual ~Server();
+		std::map<int, std::string>	    clients_buffer;
 
         /******************* getters ******************/
         int                     getServSock() const;
@@ -67,7 +68,7 @@ class Server
         fd_set                  getCpyReads();
         fd_set                  *getReads_addr();
         fd_set                  *getCpyReads_addr();
-        std::vector<Client*>    getClients();
+        std::map<int, Client*>  getClients();
         /**********************************************/
 
 
@@ -81,6 +82,8 @@ class Server
         int     detection_select();
         void    connexion(); // return number of client   
         void    deconnexion(int fd_i);
+        int     find_cmd(std::string data, Client *Sender);
+        void	send_data_to_network(std::vector<std::string>::iterator data_cursor);
         void    receiveFromClient(int fd_i);
 		
 		// ###### Handle channels #########

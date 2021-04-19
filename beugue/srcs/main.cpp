@@ -58,68 +58,58 @@ int 	main(int ac, char **av)
 	return 0;
 }
 
+void	insert_read_data_in_client_buffer(Server *server, char *buffer_read, int fd_i)
+{
+	if (server->clients_buffer.find(fd_i) != server->clients_buffer.end())
+	{
+		server->clients_buffer.find(fd_i)->second.insert(server->clients_buffer.find(fd_i)->second.size(), buffer_read);
+		// std::cout << "SIZE OF BUF : " << server->clients_buffer.find(fd_i)->second.size() << std::endl;
+	}
+	else
+		server->clients_buffer.insert(std::pair<int, std::string>(fd_i, buffer_read));
+}
+
 void    *handle_connection(Server *server)
 {
 	int nb_Of_Fd;
 
 	while (1)
 	{
-		std::cout << "_______________begin of handle connection________________" << std::endl;
+		// std::cout << "_______________begin of handle connection________________" << std::endl;
 		if((nb_Of_Fd = server->detection_select()) == -1)
 			break;
 		if (nb_Of_Fd == 0)
 			continue;
 		for (int i = 0; i < server->getFdMax() + 1; i++)
 		{
-			fcntl(i, F_SETFL, O_NONBLOCK);
 			if (FD_ISSET(i, server->getCpyReads_addr()))
 			{
+				// std::cout << "{---SEGFAULT 14?----}" << std::endl;
 				if (i == server->getServSock())
 					server->connexion();
 				else
 				{
 					int str_len;
-					std::string	str = "";
-					char buffer_read[1024];
-					memset(buffer_read, 0, 1024);
-					str_len = read(i, buffer_read, 1024);
+					char buffer_read[2048];
+					memset(buffer_read, 0, 2048);
+					str_len = read(i, buffer_read, 2048);
 					if (str_len <= 0)
 					{
 						server->deconnexion(i);
+						break;
 					}
-					else if (str_len < 1024)
+					insert_read_data_in_client_buffer(server, buffer_read, i);
+					if (str_len < 2048)
 					{
-						std::cout << "str_len < 1024" << std::endl;
-						str = buffer_read;
-						std::vector<Client*>::iterator ite = server->getClients().end();
-    					for (std::vector<Client*>::iterator it = server->getClients().begin(); it != ite; ++it) // find my client
-						{
-							if ((*it)->getFd() == i)
-							{
-								(*it)->addToClientBuffer(str);
-								server->receiveFromClient(i);
-								(*it)->clearClientBuf();
-								break;
-							}
-						}
-						
+						// std::cout << "str_len < 2048" << std::endl;
+						server->receiveFromClient(i);
+						// std::cout << server->clients_buffer.find(i)->second;
+						// std::cout << "{---SEGFAULT 12?----}" << std::endl;
+						server->clients_buffer.find(i)->second.clear();
 					}
-					else
-					{
-						std::cout << "str_len > 1024 ";
-						str.clear();
-						str = buffer_read;
-						std::vector<Client*>::iterator ite = server->getClients().end();
-    					for (std::vector<Client*>::iterator it = server->getClients().begin(); it != ite; ++it) // find my client
-						{
-							if ((*it)->getFd() == i)
-							{
-								(*it)->addToClientBuffer(str);
-								// std::cout << "|123>"<< (*it)->getClientBuf() << "<321|" << std::endl;
-								break;
-							}
-						}
-					}
+					// else
+					// 	std::cout << "str_len > 2048" << std::endl;
+					// std::cout << "{---SEGFAULT 13?----}" << std::endl;
 					
 				}
 			}

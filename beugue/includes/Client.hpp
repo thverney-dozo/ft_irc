@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/15 22:20:45 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/16 18:15:52 by thverney         ###   ########.fr       */
+/*   Updated: 2021/04/19 10:01:40 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ class   Client
 
         // **************************** setters **********************************
 		void				setCurrentChan(std::string const &name);
-		void				addToClientBuffer(std::string const &buf);
+		void				addToClientBuffer(const char *buf);
         void				clearClientBuf();
         void                setName(std::string const &name);
         void                setPassword(std::string const &password);
