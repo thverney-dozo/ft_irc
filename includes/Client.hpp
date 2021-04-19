@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/15 22:20:45 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/09 11:54:28 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/04/19 10:01:40 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class   Client
         struct sockaddr_in  addr;
         socklen_t           adr_sz;
         bool                is_server; // server or client;
+        std::string         client_buf;
     
         /************** channels ************/
         std::list<Channel*> channels;
@@ -78,6 +79,7 @@ class   Client
 		bool				getIsHostName() const;
 		bool				getIsServName() const;
 		bool				getIsRealName() const;
+        std::string const   &getClientBuf()              const;
         std::string const   &getName()              const;
         std::string const   &getPassword()          const;
         std::string const   &getUsername()          const;
@@ -91,6 +93,8 @@ class   Client
 
         // **************************** setters **********************************
 		void				setCurrentChan(std::string const &name);
+		void				addToClientBuffer(const char *buf);
+        void				clearClientBuf();
         void                setName(std::string const &name);
         void                setPassword(std::string const &password);
         void                setUsername(std::string const &usename);

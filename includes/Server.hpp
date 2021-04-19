@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/13 12:45:37 by thverney         ###   ########.fr       */
+/*   Updated: 2021/04/19 13:46:49 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,13 +31,12 @@ class Server
         int                     		host_sock;
         struct sockaddr_in      		serv_adr;
         int                     		client_nb;
-        char                    		buf[1024];
         std::string                     host_port;     // host
         std::string                     local_port;
         std::string             		local_password;
         std::string                     host_ip;        // host
         std::string                     host_password;  // host
-        std::vector<Client*>    		clients;
+        std::map<int, Client*>          clients;
         fd_set                  		reads;
         fd_set                  		cpy_reads;
         int                     		fd_max;
@@ -53,10 +52,13 @@ class Server
         Server(std::string const &local_port, std::string const &local_password, std::string const &host_ip,
 			   std::string const &host_port, std::string const &host_password);
         virtual ~Server();
+		std::map<int, std::string>	    clients_buffer;
 
         /******************* getters ******************/
         int                     getServSock() const;
+        int                     getHostSock() const;
         int                     getFdMax() const;
+        std::string const       &getBuf() const;
         std::string const       &getHostIp() const;        // host
         std::string const       &getHostPort() const;     // host
         std::string const       &getHostPassword() const;  
@@ -66,9 +68,9 @@ class Server
         fd_set                  getCpyReads();
         fd_set                  *getReads_addr();
         fd_set                  *getCpyReads_addr();
-        std::vector<Client*>    getClients();
-        char                    *getBuf();
+        std::map<int, Client*>  getClients();
         /**********************************************/
+
 
         // ########### Setup #############
         void    setup_server(std::string const &port);
@@ -80,7 +82,9 @@ class Server
         int     detection_select();
         void    connexion(); // return number of client   
         void    deconnexion(int fd_i);
-        void    receiveFromClient(int fd_i, int buf_len);
+        int     find_cmd(std::string data, Client *Sender);
+        void	send_data_to_network(std::vector<std::string>::iterator data_cursor);
+        void    receiveFromClient(int fd_i);
 		
 		// ###### Handle channels #########
 		void createChannel(std::string name, Client *client);
@@ -90,15 +94,16 @@ class Server
 		std::list<Channel*> getChannels() const; //ca doit retourner une list de channels j'imagine mais la jsuis moi meme perdu dans ce que je fais
         
         // ####### internal server layer ##########
-        void    registration(Client *client, char *buf);
+        void    registration(Client *client, const char *buf);
         void    pass_register_step(Client *client, std::vector<std::string> splited_cmd);
         void    nick_register_step(Client *client, std::vector<std::string> splited_cmd);
         void    user_register_step(Client *client, std::vector<std::string> splited_cmd);
 
 		void	fdwrite(int fd, std::string str);
-        void    resetBuf();
         void    check_error(int ret, std::string const &str);
-		std::vector<std::string>	ft_split(std::string msg);
+		std::vector<std::string>	ft_split_cmd(std::string msg);
+        std::vector<std::string>	ft_split_recv_data(std::string data);
+
 
 
         

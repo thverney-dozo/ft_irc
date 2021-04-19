@@ -11,7 +11,8 @@ SRC				= main.cpp Channel.cpp \
 				cmds/cmd_quit.cpp \
 				cmds/cmd_topic.cpp \
 				cmds/cmd_list.cpp \
-				cmds/cmd_part.cpp
+				cmds/cmd_part.cpp \
+				cmds/cmd_server.cpp
 
 OBJ				= $(SRC:.cpp=.o)
 SRCDIR      	= ./srcs/

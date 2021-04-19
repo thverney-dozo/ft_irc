@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/14 16:26:40 by thverney         ###   ########.fr       */
+/*   Updated: 2021/04/19 14:23:47 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,8 @@ void	Server::setup_host_connexion()
 	5. shutdown to end read/write.
 	6. close to releases data.
 	*/
-    int enable = 1;
 	struct sockaddr_in host_adr;
-
+	int enable = -1;
 
 	check_error((this->host_sock = socket(AF_INET, SOCK_STREAM, 0)), "ERROR host socket");
 	check_error(setsockopt(this->host_sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)), "host_sock can't be used");
@@ -61,21 +60,15 @@ void	Server::setup_host_connexion()
 	
 	check_error(connect(this->host_sock, (struct sockaddr *)&host_adr, sizeof(host_adr)), "ERROR host connect");
 	
-	// send(this->host_sock, ":myserv /PASS pass_oui\n", 24, 0);
-	send(this->host_sock, ":myserv SERVER test.oulu.fi 1 :[tolsun.oulu.fi]\n:myserv USER thio0247 bahhjsp okbg :theo gaetan\n:myserv NICK thio0247 bahhjsp okbg :theo gaetan\n", 145, 0);
-	// fcntl(this->host_sock, F_SETFL, O_NONBLOCK);
-	
+	send(this->host_sock, ":myserv USER thio0247 bahhjsp okbg :theo gaetan\n:myserv NICK thio0247 bahhjsp okbg :theo gaetan\n:myserv SERVER test.oulu.fi 1 :[tolsun.oulu.fi]\n", 145, 0);
+
 	Client *new_client = new Client(this->host_sock, host_adr, sizeof(host_adr));
 	new_client->setIsServer(true); 
-	this->clients.push_back(new_client);
+	// this->clients.push_back(new_client);
+	this->clients.insert(std::pair<int, Client*>(this->host_sock, new_client));
 	FD_SET(this->host_sock, &(this->reads));
 	if (this->fd_max < this->host_sock)
 		this->fd_max = this->host_sock;
-	// char *buffer_host;
-	// recv(this->host_sock, &buffer_host, 6000, 0);
-	// std::cout << "|+0+|" << buffer_host << "|+0+|" << std::endl;
-	// send(this->host_sock, "je me coco\n", 12, 0);
-	std::cout << "Fin du programme (code 12)" << std::endl;
 }
 
 Server::~Server()
@@ -84,7 +77,7 @@ Server::~Server()
 void     Server::setup_server(std::string const &port)
 {
 	struct sockaddr_in serv_adr;
-    int enable = 1;
+	int enable = -1;
 
 	check_error((this->serv_sock = socket(AF_INET, SOCK_STREAM, 0)), "ERROR opening socket"); 	// Create server's FD
 	check_error(setsockopt(this->serv_sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)), "serv_sock can't be used");
@@ -123,10 +116,11 @@ void     Server::connexion()
     client_socket = accept(this->serv_sock, (struct sockaddr*)&clnt_adr, &adr_sz);
     
     if (client_socket != -1)
-	{
+	{			
+		fcntl(client_socket, F_SETFL, O_NONBLOCK);
 		Client *new_client = new Client(client_socket, clnt_adr, adr_sz);
 		new_client->setIsServer(false); 									// IMPORTANT à gerer:  valeur par defaul de client 
-		clients.push_back(new_client);
+		this->clients.insert(std::pair<int, Client*>(client_socket, new_client));
 		FD_SET(client_socket, &(this->reads));
 		std::cout << "[Client connected]" << std::endl;
 		new_client->setConnectionStatus(true);
@@ -140,55 +134,71 @@ void    Server::deconnexion(int fd_i)
     FD_CLR(fd_i, &reads);
 	close(fd_i);
 	std::cout << "[Client disconnected] (";
-	std::vector<Client*>::iterator ite = clients.end();
-	for (std::vector<Client*>::iterator it = clients.begin(); it != ite; ++it) // find my client
-	{
-		if (fd_i == (*it)->getFd()) {
-			std::cout << (*it)->getName() << ")" << std::endl;
-			clients.erase(it);
-			break;
-		}
-	}
+	std::cout << this->clients.find(fd_i)->second->getName() << ")" << std::endl;
+	this->clients.erase(fd_i);
 }
 
-void    Server::receiveFromClient(int fd_i, int len_buf)
+int		Server::find_cmd(std::string data, Client *Sender)
 {
-	if (len_buf > 0)
-    	this->buf[len_buf - 1] = '\0';
-	std::cout << buf << std::endl;	
-    std::vector<Client*>::iterator ite = this->clients.end();
-    for (std::vector<Client*>::iterator it = this->clients.begin(); it != ite; ++it) // find my client
+	std::vector<std::string> splited_cmd = ft_split_cmd(data);
+
+	if (splited_cmd[0][0] == ':' && !splited_cmd[1].empty() && this->cmd.find(splited_cmd[1]) != this->cmd.end()) // si un serveur envoie des infos ":nomDuServ /CMD ..."
 	{
-		if (fd_i == (*it)->getFd() && fd_i != serv_sock)
+		this->cmd.find(splited_cmd[1])->second.exe(splited_cmd, this, Sender); // execute la command si elle existe
+		return (1);
+	}
+	else if (!splited_cmd[0].empty() && this->cmd.find(splited_cmd[0]) != this->cmd.end())
+	{
+		this->cmd.find(splited_cmd[0])->second.exe(splited_cmd, this, Sender); // execute la command si elle existe
+		return (1);
+	}
+	return (0);
+}
+
+void	Server::send_data_to_network(std::vector<std::string>::iterator data_cursor)
+{
+	std::map<int, Client*>::iterator ite_serv = this->clients.end();
+	
+	for (std::map<int, Client*>::iterator it_serv = this->clients.begin(); it_serv != ite_serv; ++it_serv)
+		if ((*it_serv).second->getIsServer() == true)
 		{
-			if ((*it)->getIsRegister() == false)
-				registration((*it), buf);
+			std::cout << "___________________ok___________________" << std::endl;
+			send(this->host_sock, (*data_cursor).c_str(), sizeof((*data_cursor)), 0);
+		}
+	
+}
+
+void    Server::receiveFromClient(int fd_i)
+{
+
+	// /*
+	Client *Sender = this->clients.find(fd_i)->second;
+	if (fd_i == Sender->getFd() && Sender->getFd() == host_sock)
+	{
+		std::cout << this->clients_buffer[fd_i];
+	}
+	if (fd_i == Sender->getFd() && Sender->getFd() != host_sock)
+	{
+		std::cout << this->clients_buffer[fd_i];
+		std::vector<std::string> splited_by_line_recv_data = ft_split_recv_data(this->clients_buffer[fd_i]);
+		std::vector<std::string>::iterator data_end = splited_by_line_recv_data.end();
+		for (std::vector<std::string>::iterator data_cursor = splited_by_line_recv_data.begin(); data_cursor != data_end; ++data_cursor)
+		{
+			// std::cout << "THE SPLITED DATA [" << (*data_cursor) << "]" << std::endl;
+			if (Sender->getIsRegister() == false)
+				registration(Sender, (*data_cursor).c_str());
+			else if (find_cmd((*data_cursor), Sender)) // return if cmd was found and launched
+				return;
 			else
 			{
-				std::string name = (*it)->getName();
-				//check if client input is a command, if it is not, we put what the client said
-				//in a string and we resend it to other channels / clients.
-				std::vector<std::string> splited_cmd = ft_split(buf); // equivalent à un char ** de retour de split
-				if (splited_cmd.empty())
-					break;
-				std::map<std::string, Command>::iterator find_cmd;
-				if (splited_cmd[0][0] == ':' && !splited_cmd[1].empty()) // si un serveur envoie des infos ":nomDuServ /CMD ..."
-					find_cmd = this->cmd.find(splited_cmd[1]); // Cherche la command extra-server
-				else
-					find_cmd = this->cmd.find(splited_cmd[0]); // Cherche la command intra-server
-				if (find_cmd != cmd.end())
-					(*find_cmd).second.exe(splited_cmd, this, (*it)); // execute la command si elle existe
-				else if (find_cmd == cmd.end())
-				{
-					std::cout << "Bon bah ca marche plus" << std::endl;
-					std::cout << buf << std::endl;
-					clientWriteOnChannel((*it)->getCurrentChan(), buf, (*it));
-				}
+				send_data_to_network(data_cursor);
+				clientWriteOnChannel(Sender->getCurrentChan(), (*data_cursor), Sender);
 			}
-            break;
 		}
+		if (Sender->getIsRegister() == false)
+			fdwrite(Sender->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
 	}
-	memset(this->buf, 0, 1024);
+	// */
 }
 
 void	Server::init_commands()
@@ -223,6 +233,9 @@ void	Server::init_commands()
 	this->cmd.insert(std::pair<std::string, Command>("/list", cmd_list));
 	this->cmd.insert(std::pair<std::string, Command>("list", cmd_list));
 	this->cmd.insert(std::pair<std::string, Command>("LIST", cmd_list));
+	this->cmd.insert(std::pair<std::string, Command>("/server", cmd_list));
+	this->cmd.insert(std::pair<std::string, Command>("server", cmd_list));
+	this->cmd.insert(std::pair<std::string, Command>("SERVER", cmd_list));
 	
 	//PASSWORD
 	//NICK
@@ -262,17 +275,19 @@ void	Server::init_commands()
 	// soit 37 commandes
 }
 
-void    Server::registration(Client *client, char *buf)
+void    Server::registration(Client *client, const char *buf)
 {
-	std::vector<std::string> splited_cmd = ft_split(buf);
+	std::vector<std::string> splited_cmd = ft_split_cmd(buf);
 	int i = 0;
 	for (size_t j = 0; j != splited_cmd.size(); j++)
 	{
 		//Check si la commande envoyee par le client est user || nick || cap ls pr recupererer les infos de capabilities du server
 		//Si c'est aucun de ceux la, renvoie une erreur
-		std::vector<std::string> splited_cmd = ft_split(buf); // equivalent à un char ** de retour de split
+		std::vector<std::string> splited_cmd = ft_split_cmd(buf); // equivalent à un char ** de retour de split
 		if (splited_cmd.empty())
 			break;
+		if (splited_cmd[0][0] == ':' && !splited_cmd[1].empty())
+			j++;
 		if (splited_cmd[j].compare("CAP") == 0 || splited_cmd[j].compare("LS") == 0)
 			i++;
 		if (splited_cmd[j].compare("user") != 0 && splited_cmd[j].compare("USER") != 0 && splited_cmd[j].compare("/user") != 0 && splited_cmd[j].compare("NICK") != 0 &&
@@ -296,8 +311,6 @@ void    Server::registration(Client *client, char *buf)
 	}
 	if (client->getIsNickSet() == true && client->getIsUserSet() == true)
 		client->setRegister(true);
-	else if (i == 0)
-		fdwrite(client->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
 }
 
 void    Server::check_error(int ret, std::string const &str)
@@ -305,17 +318,12 @@ void    Server::check_error(int ret, std::string const &str)
     if (ret < 0) { std::cerr << str << std::endl; exit(1); }
 }
 
-void    Server::resetBuf()
-{
-	memset(this->buf, 0, 1024);
-}
-
 void Server::fdwrite(int fd, std::string str)
 {
 	write(fd, str.c_str(), str.size());
 }
 
-std::vector<std::string>	Server::ft_split(std::string msg)
+std::vector<std::string>	Server::ft_split_cmd(std::string msg)
 {
 	std::vector<std::string>	split;
 	size_t			            pos = 0;
@@ -349,6 +357,27 @@ std::vector<std::string>	Server::ft_split(std::string msg)
 	return (split);
 }
 
+std::vector<std::string>	Server::ft_split_recv_data(std::string data)
+{
+	std::vector<std::string>	split;
+	size_t			            pos = 0;
+	std::string		            tmp;
+
+	if (data.empty())
+		return std::vector<std::string>();
+	while ((pos = data.find_first_of("\n")) != std::string::npos)
+	{
+		// std::cout << "{+++++++}" << std::endl;
+		tmp = data.substr(0, pos);
+		if (!tmp.empty())
+			split.push_back(tmp);
+		data.erase(0, pos + 1);
+	}
+	if (!data.empty())
+		split.push_back(data);
+	return (split);
+}
+
 /*          _   _                
            | | | |               
   __ _  ___| |_| |_ ___ _ __ ___ 
@@ -369,15 +398,16 @@ int     Server::getServSock() const
     return (this->serv_sock);
 }
 
+int     Server::getHostSock() const
+{
+    return (this->host_sock);
+}
+
 int     Server::getFdMax() const
 {
     return (this->fd_max);
 }
 
-char     *Server::getBuf()
-{
-    return (this->buf);
-}
 std::string const       &Server::getHostIp() const
 {
 	return (this->host_ip);
@@ -423,7 +453,7 @@ fd_set      *Server::getCpyReads_addr()
     return (&(this->cpy_reads));
 }
 
-std::vector<Client*>    Server::getClients()
+std::map<int, Client*>    Server::getClients()
 {
     return (this->clients);
 }
