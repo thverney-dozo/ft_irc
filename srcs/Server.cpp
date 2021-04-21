@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/19 14:23:47 by thverney         ###   ########.fr       */
+/*   Updated: 2021/04/21 17:27:50 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void	Server::setup_host_connexion()
 	// A REMPLACER PAR UNE FONCTION AUTORISEE !!!!!!!!
 	
 	check_error(connect(this->host_sock, (struct sockaddr *)&host_adr, sizeof(host_adr)), "ERROR host connect");
-	
+	fcntl(this->host_sock, F_SETFL, O_NONBLOCK);	
 	send(this->host_sock, ":myserv USER thio0247 bahhjsp okbg :theo gaetan\n:myserv NICK thio0247 bahhjsp okbg :theo gaetan\n:myserv SERVER test.oulu.fi 1 :[tolsun.oulu.fi]\n", 145, 0);
 
 	Client *new_client = new Client(this->host_sock, host_adr, sizeof(host_adr));
@@ -162,8 +162,10 @@ void	Server::send_data_to_network(std::vector<std::string>::iterator data_cursor
 	for (std::map<int, Client*>::iterator it_serv = this->clients.begin(); it_serv != ite_serv; ++it_serv)
 		if ((*it_serv).second->getIsServer() == true)
 		{
-			std::cout << "___________________ok___________________" << std::endl;
-			send(this->host_sock, (*data_cursor).c_str(), sizeof((*data_cursor)), 0);
+			// std::cout << "___________________ok" << (*data_cursor).c_str() << "___________________" << std::endl;
+			// send((*it_serv).second->getFd(), (*data_cursor).c_str(), sizeof((*data_cursor)), 0);
+			fdwrite((*it_serv).second->getFd(), (*data_cursor+ "\n").c_str());
+			// send(this->host_sock, (*data_cursor).c_str(), sizeof((*data_cursor)), 0);
 		}
 	
 }
@@ -171,34 +173,26 @@ void	Server::send_data_to_network(std::vector<std::string>::iterator data_cursor
 void    Server::receiveFromClient(int fd_i)
 {
 
-	// /*
-	Client *Sender = this->clients.find(fd_i)->second;
-	if (fd_i == Sender->getFd() && Sender->getFd() == host_sock)
+	std::cout << this->clients_buffer[fd_i];
+
+	std::vector<std::string> splited_by_line_recv_data = ft_split_recv_data(this->clients_buffer[fd_i]);
+	std::vector<std::string>::iterator data_end = splited_by_line_recv_data.end();
+	for (std::vector<std::string>::iterator data_cursor = splited_by_line_recv_data.begin(); data_cursor != data_end; ++data_cursor)
 	{
-		std::cout << this->clients_buffer[fd_i];
-	}
-	if (fd_i == Sender->getFd() && Sender->getFd() != host_sock)
-	{
-		std::cout << this->clients_buffer[fd_i];
-		std::vector<std::string> splited_by_line_recv_data = ft_split_recv_data(this->clients_buffer[fd_i]);
-		std::vector<std::string>::iterator data_end = splited_by_line_recv_data.end();
-		for (std::vector<std::string>::iterator data_cursor = splited_by_line_recv_data.begin(); data_cursor != data_end; ++data_cursor)
-		{
-			// std::cout << "THE SPLITED DATA [" << (*data_cursor) << "]" << std::endl;
-			if (Sender->getIsRegister() == false)
-				registration(Sender, (*data_cursor).c_str());
-			else if (find_cmd((*data_cursor), Sender)) // return if cmd was found and launched
-				return;
-			else
-			{
-				send_data_to_network(data_cursor);
-				clientWriteOnChannel(Sender->getCurrentChan(), (*data_cursor), Sender);
-			}
-		}
+		// std::cout << "THE SPLITED DATA [" << (*data_cursor) << "]" << std::endl;
 		if (Sender->getIsRegister() == false)
-			fdwrite(Sender->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
+				registration(Sender, (*data_cursor).c_str());
+		else if (find_cmd((*data_cursor), Sender)) // return if cmd was found and launched
+				return;
+		else
+		{
+			send_data_to_network(data_cursor);
+			clientWriteOnChannel(Sender->getCurrentChan(), (*data_cursor), Sender);
+		}
 	}
-	// */
+	if (Sender->getIsRegister() == false)
+		fdwrite(Sender->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
+
 }
 
 void	Server::init_commands()
@@ -237,42 +231,45 @@ void	Server::init_commands()
 	this->cmd.insert(std::pair<std::string, Command>("server", cmd_list));
 	this->cmd.insert(std::pair<std::string, Command>("SERVER", cmd_list));
 	
-	//PASSWORD
-	//NICK
-	//USER
-	//SERVER
-	//OPER
-	//QUIT
-	//SQUIT
-	//PART
-	//MODE
-	//TOPIC
-	//NANES
-	//LIST
-	//INVITE
-	//KICK
-	//VERSION
-	//STATS
-	//LINKS
-	//CONNECT
-	//TRACE
-	//ADMIN
-	//INFO
-	//NOTICE
-	//WHOIS
-	//WHOWAS
-	//KILL
-	//PING
-	//PONG
-	//ERROR
-	//SERVICE
-	//MOTD
-	//LUSERS
-	//TIME
-	//SERVLIST
-	//SQUERY
-	//NJOIN
-	// soit 37 commandes
+	// PASS 
+	// NICK
+	// USER
+	// SERVER
+	// QUIT
+	// PART
+	// TOPIC
+	// PRIVMSG
+	// LIST
+	// WHO
+
+	// OPER
+	// SQUIT
+	// MODE
+	// NANES
+	// INVITE
+	// KICK
+	// VERSION
+	// STATS
+	// LINKS
+	// CONNECT
+	// TRACE
+	// ADMIN
+	// INFO
+	// NOTICE
+	// WHOIS
+	// WHOWAS
+	// KILL
+	// PING
+	// PONG
+	// ERROR
+	// SERVICE
+	// MOTD
+	// LUSERS
+	// TIME
+	// SERVLIST
+	// SQUERY
+	// NJOIN
+	//  soit 37 commandes
 }
 
 void    Server::registration(Client *client, const char *buf)

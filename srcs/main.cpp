@@ -78,6 +78,7 @@ void    *handle_connection(Server *server)
 		// std::cout << "_______________begin of handle connection________________" << std::endl;
 		if((nb_Of_Fd = server->detection_select()) == -1)
 			break;
+		// std::cout << std::endl;
 		if (nb_Of_Fd == 0)
 			continue;
 		for (int i = 0; i < server->getFdMax() + 1; i++)
@@ -102,6 +103,7 @@ void    *handle_connection(Server *server)
 					if (str_len < 2048)
 					{
 						// std::cout << "str_len < 2048" << std::endl;
+						server->Sender = server->getClients().find(i)->second; // current client to deal with
 						server->receiveFromClient(i);
 						// std::cout << server->clients_buffer.find(i)->second;
 						// std::cout << "{---SEGFAULT 12?----}" << std::endl;

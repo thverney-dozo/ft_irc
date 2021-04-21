@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/19 13:46:49 by thverney         ###   ########.fr       */
+/*   Updated: 2021/04/21 17:25:11 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 #include <iostream>
 #include <sys/time.h>
 #include <fcntl.h>
+#include <locale>
+#include <algorithm>
 #include <cstring>
 #include "Client.hpp"
 #include "Channel.hpp"
@@ -44,6 +46,7 @@ class Server
 		std::list<Channel*> 			channels;
 		std::map<std::string, Command>	cmd;
 
+
         Server(Server const &cpy);
         Server &operator=(Server const &affect);
 
@@ -52,6 +55,7 @@ class Server
         Server(std::string const &local_port, std::string const &local_password, std::string const &host_ip,
 			   std::string const &host_port, std::string const &host_password);
         virtual ~Server();
+        Client                          *Sender;   // current client to deal with
 		std::map<int, std::string>	    clients_buffer;
 
         /******************* getters ******************/
