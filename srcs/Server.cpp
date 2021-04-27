@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/21 17:27:50 by thverney         ###   ########.fr       */
+/*   Updated: 2021/04/27 14:01:13 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ Server::Server(std::string const &local_port, std::string const &local_password,
 		this->host_password = host_password;
 	}
     setup_server(this->local_port.c_str());
-	
 	if (!host_ip.empty() && !host_port.empty())
 		setup_host_connexion();
 	
@@ -143,16 +142,12 @@ int		Server::find_cmd(std::string data, Client *Sender)
 	std::vector<std::string> splited_cmd = ft_split_cmd(data);
 
 	if (splited_cmd[0][0] == ':' && !splited_cmd[1].empty() && this->cmd.find(splited_cmd[1]) != this->cmd.end()) // si un serveur envoie des infos ":nomDuServ /CMD ..."
-	{
 		this->cmd.find(splited_cmd[1])->second.exe(splited_cmd, this, Sender); // execute la command si elle existe
-		return (1);
-	}
 	else if (!splited_cmd[0].empty() && this->cmd.find(splited_cmd[0]) != this->cmd.end())
-	{
 		this->cmd.find(splited_cmd[0])->second.exe(splited_cmd, this, Sender); // execute la command si elle existe
-		return (1);
-	}
-	return (0);
+	else
+		return (0);
+	return (1);
 }
 
 void	Server::send_data_to_network(std::vector<std::string>::iterator data_cursor)
@@ -164,6 +159,7 @@ void	Server::send_data_to_network(std::vector<std::string>::iterator data_cursor
 		{
 			// std::cout << "___________________ok" << (*data_cursor).c_str() << "___________________" << std::endl;
 			// send((*it_serv).second->getFd(), (*data_cursor).c_str(), sizeof((*data_cursor)), 0);
+
 			fdwrite((*it_serv).second->getFd(), (*data_cursor+ "\n").c_str());
 			// send(this->host_sock, (*data_cursor).c_str(), sizeof((*data_cursor)), 0);
 		}
@@ -175,11 +171,13 @@ void    Server::receiveFromClient(int fd_i)
 
 	std::cout << this->clients_buffer[fd_i];
 
+	if (Sender->getIsServer() == true)
+		return;
 	std::vector<std::string> splited_by_line_recv_data = ft_split_recv_data(this->clients_buffer[fd_i]);
 	std::vector<std::string>::iterator data_end = splited_by_line_recv_data.end();
 	for (std::vector<std::string>::iterator data_cursor = splited_by_line_recv_data.begin(); data_cursor != data_end; ++data_cursor)
 	{
-		// std::cout << "THE SPLITED DATA [" << (*data_cursor) << "]" << std::endl;
+		std::cout << "THE SPLITED DATA [" << (*data_cursor) << "]" << std::endl;
 		if (Sender->getIsRegister() == false)
 				registration(Sender, (*data_cursor).c_str());
 		else if (find_cmd((*data_cursor), Sender)) // return if cmd was found and launched
@@ -227,9 +225,9 @@ void	Server::init_commands()
 	this->cmd.insert(std::pair<std::string, Command>("/list", cmd_list));
 	this->cmd.insert(std::pair<std::string, Command>("list", cmd_list));
 	this->cmd.insert(std::pair<std::string, Command>("LIST", cmd_list));
-	this->cmd.insert(std::pair<std::string, Command>("/server", cmd_list));
-	this->cmd.insert(std::pair<std::string, Command>("server", cmd_list));
-	this->cmd.insert(std::pair<std::string, Command>("SERVER", cmd_list));
+	this->cmd.insert(std::pair<std::string, Command>("/server", cmd_server));
+	this->cmd.insert(std::pair<std::string, Command>("server", cmd_server));
+	this->cmd.insert(std::pair<std::string, Command>("SERVER", cmd_server));
 	
 	// PASS 
 	// NICK

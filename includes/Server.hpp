@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/21 17:25:11 by thverney         ###   ########.fr       */
+/*   Updated: 2021/04/27 10:14:37 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,9 +108,17 @@ class Server
 		std::vector<std::string>	ft_split_cmd(std::string msg);
         std::vector<std::string>	ft_split_recv_data(std::string data);
 
-
-
-        
+        void    seg(int i1, int i2 = 0, int i3 = 0, int i4 = 0)
+        {
+            std::cout << "~~~ < seg code > "<< i1;
+            if (i2)
+                std::cout << "_._" << i2;
+            if (i3)
+                std::cout << "_._" << i3;
+            if (i4)
+                std::cout << "_._" << i4;
+            std::cout << std::endl;
+        }        
 };
 
 #endif
