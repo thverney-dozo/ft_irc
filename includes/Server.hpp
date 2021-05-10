@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/27 10:14:37 by thverney         ###   ########.fr       */
+/*   Updated: 2021/05/07 10:54:56 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ class Server
         int                     getServSock() const;
         int                     getHostSock() const;
         int                     getFdMax() const;
+		Channel			 *Server::getThisChan(std::string name);
         std::string const       &getBuf() const;
         std::string const       &getHostIp() const;        // host
         std::string const       &getHostPort() const;     // host

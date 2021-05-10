@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:19:44 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/19 10:01:27 by thverney         ###   ########.fr       */
+/*   Updated: 2021/05/10 16:41:38 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ bool                Client::getIsNickSet()      const   { return (this->is_nick_
 bool                Client::getIsUserSet()      const   { return (this->is_user_set); }
 bool                Client::getIsRegister()     const   { return (this->is_register); }
 bool				Client::getConnectionStatus() const { return (this->is_connected); }
+bool				Client::getIsOp() {return is_op;}
 int                 Client::getFd()             const   { return (this->fd); }
 
 
@@ -79,6 +80,7 @@ void                Client::setRegister(bool is_set)                       { thi
 void                Client::setHostName(bool is_set)                       { this->host_name_set = is_set; }
 void                Client::setServerName(bool is_set)                       { this->serv_name_set = is_set; }
 void                Client::setRealName(bool is_set)                       { this->real_name_set = is_set; }
+void				Client::setOp(bool isop)										{is_op = isop;}
 
 void                Client::setIsServer(bool is_serv)                   { this->is_server = is_serv; }
 void				Client::setHostName(std::string const &hostname) 	{ host_name = hostname; }
@@ -117,4 +119,23 @@ void Client::write_on_all_chans(std::string msg)
 	std::list<Channel*>::iterator begin = channels.begin();
 	for (std::list<Channel*>::iterator end = channels.end(); begin != end; begin++)
 		(*begin)->clientWriteMsg(msg, this);
+}
+
+std::string const& Client::getMods() const
+{
+	return mods;
+}
+
+void Client::addMod(char mod)
+{
+	size_t pos =mods.find(mod);
+	if (pos == std::string::npos)
+		mods += mod;
+}
+
+void Client::remMod(char mod)
+{
+	size_t pos = mods.find(mod);
+	if (pos != std::string::npos)
+		mods.erase(pos, 1);
 }

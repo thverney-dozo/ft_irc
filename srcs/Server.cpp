@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/27 14:01:13 by thverney         ###   ########.fr       */
+/*   Updated: 2021/05/07 10:54:30 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,6 +228,9 @@ void	Server::init_commands()
 	this->cmd.insert(std::pair<std::string, Command>("/server", cmd_server));
 	this->cmd.insert(std::pair<std::string, Command>("server", cmd_server));
 	this->cmd.insert(std::pair<std::string, Command>("SERVER", cmd_server));
+	this->cmd.insert(std::pair<std::string, Command>("/mode", cmd_mode));
+	this->cmd.insert(std::pair<std::string, Command>("mode", cmd_mode));
+	this->cmd.insert(std::pair<std::string, Command>("MODE", cmd_mode));
 	
 	// PASS 
 	// NICK
@@ -479,6 +482,17 @@ int Server::checkChannelList(std::string name)
 	{
 		if(name == (*begin)->getChanName())
 			return 1;
+	}
+	return 0;
+}
+
+Channel *Server::getThisChan(std::string name)
+{
+	std::list<Channel*>::iterator begin = channels.begin();
+	for (std::list<Channel*>::iterator end = channels.end(); begin != end; begin++)
+	{
+		if(name == (*begin)->getChanName())
+			return (*begin);
 	}
 	return 0;
 }

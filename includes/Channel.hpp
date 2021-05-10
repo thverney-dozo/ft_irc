@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:05:39 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/02 08:39:11 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/05/10 17:05:21 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,12 @@ class Channel
 		std::string _name;
 		std::string _topic;
 		std::list<Client*> _clients;
+		bool	mods;
+		std::string _flags;
+		int limit;
+		int currentUsers;
+		std::list<Client*> banList;
+		std::list<Client*> premiumUserList;
 
 		Channel();
 
@@ -40,6 +46,21 @@ class Channel
 		void clientWriteMsg(std::string msg, Client *client);
 		void userLeftChan(Client *client);
 		void setTopic(std::string subject);
+		void addFlag(char flags);
+		void addUser();
+		int getCurrentUsers();
+		void userLeaveChannel();
+		std::string getMods();
+		void removeFlag(char flags);
+		std::string getFlags();
+		int getLimit();
+		void setLimit(int max);
+		std::list<Client*> getPremiumList();
+		int checkPremiumList(Client *client);
+		void addPremiumClient(Client *client);
+		void removePremiumClient(Client *client);
+		void addBanClient(Client *client);
+		int checkBans(Client *client);
 
 		std::string getTopic() const;
 		std::string getChanName() const;

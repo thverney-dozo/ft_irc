@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 00:50:36 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/02 08:29:23 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/05/10 16:51:53 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,44 @@ void	cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 				std::cout << "Client created a new channel named : " << split[1] << std::endl;
 			}
 			else
+			{
+				Channel *chan = serv->getThisChan(split[1]);
+				std::string mods = chan->getMods();
+				if (mods.find('i', 0) != std::string::npos)
+				{
+					serv->fdwrite(client->getFd(), "This channel is on invitation mode.\n");
+					return ;
+				}
+				if (mods.find('s', 0) != std::string::npos)
+				{
+					serv->fdwrite(client->getFd(), "No such channel.\n");
+					return ;
+				}
+				if (mods.find('l', 0) != std::string::npos)
+				{
+					if (chan->getLimit() == chan->getCurrentUsers())
+						serv->fdwrite(client->getFd(), "Channel is full.\n");
+					else
+					{
+						chan->addClient(client);
+						chan->addUser();
+					}
+				}
+				if (mods.find('b', 0) != std::string::npos)
+				{
+					if (!chan->checkBans(client))
+						serv->fdwrite(client->getFd(), "You are banned from the channel.\n");
+					else
+					{
+						chan->addClient(client);
+						chan->addUser();
+					}
+				}
+				//Check if there is a password case and check if the password is right
+				//I dont know if this is mandatory or not
+				//Maybe there is others mods to check;
 				std::cout << "Client joined channel : " << split[1] << std::endl;
+			}
 		}
 		else
 			serv->fdwrite(client->getFd(), "Wrong use of JOIN command.\n");

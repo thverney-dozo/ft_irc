@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Command.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/23 19:21:49 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/14 18:32:22 by thverney         ###   ########.fr       */
+/*   Updated: 2021/05/07 11:21:58 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ void	cmd_part(std::vector<std::string> split, Server *serv, Client *client);
 void	cmd_topic(std::vector<std::string> split, Server *serv, Client *client);
 void	cmd_list(std::vector<std::string> split, Server *serv, Client *client);
 void	cmd_server(std::vector<std::string> split, Server *serv, Client *client);
+void	cmd_mode(std::vector<std::string> split, Server *serv, Client *client);
 
 
 

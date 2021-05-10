@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 01:44:20 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/04/02 08:40:17 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/05/10 17:08:31 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,25 @@ void Channel::clientWriteMsg(std::string msg, Client *client)
 	}
 }
 
+std::string Channel::getMods()
+{
+	return _flags;
+}
+
+void Channel::addFlag(char flag)
+{
+	size_t pos =_flags.find(flag);
+	if (pos == std::string::npos)
+		_flags += flag;
+}
+
+void Channel::removeFlag(char flag)
+{
+	size_t pos = _flags.find(flag);
+	if (pos != std::string::npos)
+		_flags.erase(pos, 1);
+}
+
 void Channel::setTopic(std::string subject)
 {
 	_topic = subject;
@@ -99,4 +118,76 @@ void Channel::setTopic(std::string subject)
 std::string Channel::getTopic() const
 {
 	return _topic;
+}
+
+void Channel::setLimit(int max)
+{
+	limit = max;
+}
+
+int Channel::getLimit()
+{
+	return limit;
+}
+
+void Channel::addUser()
+{
+	currentUsers += 1;
+}
+
+int Channel::getCurrentUsers()
+{
+	return currentUsers;
+}
+
+void Channel::userLeaveChannel()
+{
+	currentUsers -= 1;
+}
+
+int Channel::checkBans(Client *client)
+{
+	std::list<Client*>::iterator ite = banList.begin();
+	for (std::list<Client*>::iterator it = banList.end(); ite != it; ite++)
+	{
+		if ((*ite)->getRealName() == client->getRealName())
+			return 0;
+	}
+	return 1;
+}
+
+void Channel::addPremiumClient(Client *client)
+{
+	premiumUserList.push_back(client);
+}
+
+std::list<Client*> Channel::getPremiumList()
+{
+	return premiumUserList;
+}
+
+void Channel::removePremiumClient(Client *client)
+{
+	std::list<Client*> list = getPremiumList();
+	std::list<Client*>::iterator it = list.begin();
+	for (std::list<Client*>::iterator ite = list.end(); it != ite; it++)
+	{
+		if ((*it)->getName() == client->getName())
+		{
+			list.erase(it);
+			return ;
+		}
+	}
+}
+
+int Channel::checkPremiumList(std::string name)
+{
+	std::list<Client*> list = getPremiumList();
+	std::list<Client*>::iterator it = list.begin();
+	for (std::list<Client*>::iterator ite = list.end(); it != ite; it++)
+	{
+		if ((*it)->getName() == name)
+			return 1;
+	}
+	return 0;
 }
