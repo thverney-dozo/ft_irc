@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/05/07 10:54:30 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/11 07:25:39 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,9 +228,9 @@ void	Server::init_commands()
 	this->cmd.insert(std::pair<std::string, Command>("/server", cmd_server));
 	this->cmd.insert(std::pair<std::string, Command>("server", cmd_server));
 	this->cmd.insert(std::pair<std::string, Command>("SERVER", cmd_server));
-	this->cmd.insert(std::pair<std::string, Command>("/mode", cmd_mode));
-	this->cmd.insert(std::pair<std::string, Command>("mode", cmd_mode));
-	this->cmd.insert(std::pair<std::string, Command>("MODE", cmd_mode));
+	// this->cmd.insert(std::pair<std::string, Command>("/mode", cmd_mode));
+	// this->cmd.insert(std::pair<std::string, Command>("mode", cmd_mode));
+	// this->cmd.insert(std::pair<std::string, Command>("MODE", cmd_mode));
 	
 	// PASS 
 	// NICK

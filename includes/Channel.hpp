@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:05:39 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/05/10 17:05:21 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/11 07:24:01 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ class Channel
 		int getLimit();
 		void setLimit(int max);
 		std::list<Client*> getPremiumList();
-		int checkPremiumList(Client *client);
+		int checkPremiumList(std::string name);
 		void addPremiumClient(Client *client);
 		void removePremiumClient(Client *client);
 		void addBanClient(Client *client);
