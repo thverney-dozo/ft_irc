@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_join.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 00:50:36 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/05/10 16:51:53 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/11 09:18:37 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ void	cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 				//I dont know if this is mandatory or not
 				//Maybe there is others mods to check;
 				std::cout << "Client joined channel : " << split[1] << std::endl;
+				serv->fdwrite(client->getFd(), client->getUsername() + "JOIN :" + split[1]);
 			}
 		}
 		else

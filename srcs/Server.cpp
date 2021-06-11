@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/11 07:25:39 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/11 08:22:44 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,7 +232,8 @@ void	Server::init_commands()
 	// this->cmd.insert(std::pair<std::string, Command>("mode", cmd_mode));
 	// this->cmd.insert(std::pair<std::string, Command>("MODE", cmd_mode));
 	
-	// PASS 
+	// PASS
+	
 	// NICK
 	// USER
 	// SERVER
@@ -309,6 +310,8 @@ void    Server::registration(Client *client, const char *buf)
 	}
 	if (client->getIsNickSet() == true && client->getIsUserSet() == true)
 		client->setRegister(true);
+	if (client->getIsRegister() == true)
+		fdwrite(client->getFd(), "Registration done !\n");
 }
 
 void    Server::check_error(int ret, std::string const &str)

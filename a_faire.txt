@@ -1,0 +1,13 @@
+ADD reference client.
+
+Suppression de la RFC.
+
+Ajout des fonctionnalités requises.
+
+Authentification, définir un surnom, un nom d'utilisateur, rejoindre un canal, pm.
+
+Admin/user.
+
+Autorise toutes les fonctions C++98 et C.
+
+Select, poll, epoll et kqueue sont autorisés au lieu de select seulement.
