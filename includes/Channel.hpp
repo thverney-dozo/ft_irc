@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:05:39 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/11 07:24:01 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/16 17:12:04 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ class Channel
 		void addClient(Client *client);
 		void removeClient(Client *client);
 		void clientWriteMsg(std::string msg, Client *client);
-		void userLeftChan(Client *client);
 		void setTopic(std::string subject);
 		void addFlag(char flags);
 		void addUser();

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 01:44:20 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/05/10 17:08:31 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/16 17:12:09 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,18 +66,6 @@ void Channel::removeClient(Client *client)
 			_clients.erase(begin);
 			return ;
 		}
-	}
-}
-
-void Channel::userLeftChan(Client *client)
-{
-	std::list<Client*>::iterator end = this->_clients.end();
-	for (std::list<Client*>::iterator begin = this->_clients.begin(); begin != end; begin++)
-	{
-		std::string str = "\rUser " + client->getName() + " left the channel.\n";
-		if (client->getFd() == (*begin)->getFd())
-			str = "\rYou left channel " + _name + "\n";
-		write((*begin)->getFd(), str.c_str(), str.size()); 
 	}
 }
 

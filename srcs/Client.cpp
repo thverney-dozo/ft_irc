@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaefourn <gaefourn@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:19:44 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/16 10:39:32 by gaefourn         ###   ########.fr       */
+/*   Updated: 2021/06/16 17:12:01 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ void				Client::leave_channel(std::string name)
 	{
 		if ((*begin)->getChanName() == name)
 		{
-			(*begin)->userLeftChan(this);
 			channels.erase(begin);
 			return ;
 		}

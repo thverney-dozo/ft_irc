@@ -12,17 +12,17 @@ void	cmd_privmsg(std::vector<std::string> split, Server *serv, Client *client)
 		{
 			std::string message;
 			std::vector<std::string>::iterator ite2 = split.begin();
-			for (std::vector<std::string>::iterator it = split.end(); ite2 != it; ite2++)
+			std::vector<std::string>::iterator it = split.end();
+			if (split.begin() != split.end())
+				ite2++;
+			for (; ite2 != it; ite2++)
 			{
 				if ((*ite2)[0] == '/' || (*ite2) == (*ite).second->getName())
 					continue;
 				message += (*ite2);
 				message += " ";
 			}
-			std::string realmessage = "From " + client->getName() + ": " + message + '\n';
-			serv->fdwrite((*ite).second->getFd(), realmessage);
-			serv->fdwrite(client->getFd(), "\033[A\33[2KT\r");
-			serv->fdwrite(client->getFd(), "To " + (*ite).second->getName() + ": " + message + '\n');
+			serv->fdwrite((*ite).second->getFd(), ":" + client->getName() + "!localhost PRIVMSG " + (*ite).second->getName() + " :" + message + "\r\n");
 			return ;
 		}
 	}
@@ -34,7 +34,10 @@ void	cmd_privmsg(std::vector<std::string> split, Server *serv, Client *client)
 		{
 			std::string message;
 			std::vector<std::string>::iterator ite2 = split.begin();
-			for (std::vector<std::string>::iterator iter = split.end(); ite2 != iter; ite2++)
+			std::vector<std::string>::iterator iter = split.end();
+			if (split.begin() != split.end())
+				ite2++;
+			for (; ite2 != iter; ite2++)
 			{
 				if((*ite2)[0] == '/' || (*ite2) == (*it)->getChanName())
 					continue;
@@ -44,7 +47,11 @@ void	cmd_privmsg(std::vector<std::string> split, Server *serv, Client *client)
 			std::list<Client*> clientlist = (*it)->getConnectedClients();
 			std::list<Client*>::iterator begin = clientlist.begin();
 			for (std::list<Client*>::iterator end = clientlist.end(); begin != end; begin++)
-				serv->fdwrite((*begin)->getFd(), message + "\r\n");
+			{
+				if (client->getFd() == (*begin)->getFd())
+					continue;
+				serv->fdwrite((*begin)->getFd(), ":" + client->getName() + "!localhost PRIVMSG " + (*it)->getChanName() + " :" + message + "\r\n");
+			}
 			return ;
 		}
 	}
