@@ -26,5 +26,7 @@ void	cmd_privmsg(std::vector<std::string> split, Server *serv, Client *client)
 			return ;
 		}
 	}
+	//CHECK IF ITS A USER OR A CHAN, IF ITS A CHAN ->ERR_CANNOTSENDTOCHAN
+	//ERR_NOSUCHNICK
 	serv->fdwrite(client->getFd(), "Error: user \"" + split[1] + "\" does not exist\n");
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_nick.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: gaefourn <gaefourn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/28 15:19:53 by thverney          #+#    #+#             */
-/*   Updated: 2021/03/30 11:55:58 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/16 12:22:15 by gaefourn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,9 @@ void	cmd_nick(std::vector<std::string> split, Server *serv, Client *client)
 		else
 		{
 			client->setNickname(split[1]);
+			//CHECK NICKNAME, IF IN USE ERR_NICKNAMEINUSE
 			client->setNickSet(true);
+			//SEND SERVER RESPONSE TO CLIENT
 		}
 	}
 	else // if connection is a server

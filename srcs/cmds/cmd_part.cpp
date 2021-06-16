@@ -18,9 +18,13 @@ void	cmd_part(std::vector<std::string> split, Server *serv, Client *client)
 						(*begin)->removeClient(client);
 				}
 				return ;
+			// ERR_NOTONCHANNEL
 			}
 			else
+			// ERR_NOSUCHCHANNEL
 				serv->fdwrite(client->getFd(), "Error: '" + split[1] +  "' no such channel\n");
 		}
 	}
+	// else
+	// ERR_NEEDMOREPARAMS
 }
