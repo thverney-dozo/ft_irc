@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaefourn <gaefourn@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/16 12:04:38 by gaefourn         ###   ########.fr       */
+/*   Updated: 2021/06/16 14:26:31 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,7 +177,9 @@ void    Server::receiveFromClient(int fd_i)
 	std::vector<std::string>::iterator data_end = splited_by_line_recv_data.end();
 	for (std::vector<std::string>::iterator data_cursor = splited_by_line_recv_data.begin(); data_cursor != data_end; ++data_cursor)
 	{
-		std::cout << "THE SPLITED DATA [" << (*data_cursor) << "]" << std::endl;
+		std::string dat = (*data_cursor);
+		dat.erase(dat.size() - 1, 1);
+		std::cout << "->" << "[" << dat << "]" << std::endl;
 		if (Sender->getIsRegister() == false)
 				registration(Sender, (*data_cursor).c_str());
 		else if (find_cmd((*data_cursor), Sender)) // return if cmd was found and launched
@@ -474,8 +476,10 @@ void Server::createChannel(std::string name, Client *client)
 	channels.push_back(new_chan);
 	new_chan->addClient(client);
 	client->join_channel(new_chan);
-	client->setCurrentChan(new_chan->getChanName());
-	fdwrite(client->getFd(), "Channel " + name + " successfully created\n");
+	// client->setCurrentChan(new_chan->getChanName());
+	std::cout << "C'EST CAAA " << name << std::endl;
+	fdwrite(client->getFd(), ":" + client->getUsername() + "!localhost JOIN " + name + "\r\n");
+	// fdwrite(client->getFd(), "Channel " + name + " successfully created\n");
 }
 
 int Server::checkChannelList(std::string name)
@@ -511,7 +515,10 @@ int Server::checkChannels(std::string name, Client *client)
 			client->join_channel(*begin);
 			client->setCurrentChan(name);
 			if (client->CheckChannels(name))
+			{
+				// fdwrite(client->getFd(), ":" + client->getUsername() + "!localhost JOIN " + name + "\r\n");
 				clientWriteOnChannel((*begin)->getChanName(), "joined the channel", client);
+			}
 			return 1;
 		}
 	}

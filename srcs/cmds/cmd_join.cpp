@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 00:50:36 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/11 09:18:37 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/16 14:26:53 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,8 @@ void	cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 				//Check if there is a password case and check if the password is right
 				//I dont know if this is mandatory or not
 				//Maybe there is others mods to check;
+				serv->fdwrite(client->getFd(), ":" + client->getUsername() + "!localhost JOIN " + split[1] + "\r\n");
 				std::cout << "Client joined channel : " << split[1] << std::endl;
-				serv->fdwrite(client->getFd(), client->getUsername() + "JOIN :" + split[1]);
 			}
 		}
 		else
