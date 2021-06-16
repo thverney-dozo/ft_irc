@@ -26,6 +26,28 @@ void	cmd_privmsg(std::vector<std::string> split, Server *serv, Client *client)
 			return ;
 		}
 	}
+	std::list<Channel*> chanlist = serv->getChannels();
+	std::list<Channel*>::iterator itex = chanlist.end();
+	for (std::list<Channel*>::iterator it = chanlist.begin(); it != itex; it++)
+	{
+		if ((*it)->getChanName() == split[1])
+		{
+			std::string message;
+			std::vector<std::string>::iterator ite2 = split.begin();
+			for (std::vector<std::string>::iterator iter = split.end(); ite2 != iter; ite2++)
+			{
+				if((*ite2)[0] == '/' || (*ite2) == (*it)->getChanName())
+					continue;
+				message += (*ite2);
+				message += " ";
+			}
+			std::list<Client*> clientlist = (*it)->getConnectedClients();
+			std::list<Client*>::iterator begin = clientlist.begin();
+			for (std::list<Client*>::iterator end = clientlist.end(); begin != end; begin++)
+				serv->fdwrite((*begin)->getFd(), message + "\r\n");
+			return ;
+		}
+	}
 	//CHECK IF ITS A USER OR A CHAN, IF ITS A CHAN ->ERR_CANNOTSENDTOCHAN
 	//ERR_NOSUCHNICK
 	serv->fdwrite(client->getFd(), "Error: user \"" + split[1] + "\" does not exist\n");
