@@ -11,3 +11,20 @@ Admin/user.
 Autorise toutes les fonctions C++98 et C.
 
 Select, poll, epoll et kqueue sont autorisés au lieu de select seulement.
+
+COMMANDES :
+Join / PRESQUE TERMINEE
+Part / A VERIFIER
+Nick / NORMALEMENT TERMINEE ??
+Pass / NORMALEMENT TERMINEE ??
+User / NORMALEMENT TERMINEE
+Mode / A FINIR PROPREMENT ET A DETERMINER QUELS MODS FAUT FAIRE
+Privmsg / NORMALEMENT TERMINEE ??
+
+CLIENT 
+-Envoyer correctement les reponses serveur au client;
+-Envoyer les bons messages correspondant aux commandes a l'utilisateur;
+
+Remettre le code au propre
+
+host network ???

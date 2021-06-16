@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: gaefourn <gaefourn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/15 22:20:45 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/05/10 16:40:20 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/16 10:40:37 by gaefourn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,7 @@ class   Client
 		std::string const &getMods() const;
 		bool					getIsOp();
 		int                 getPass(std::string password, int clnt_sock, char tmp[1024]);
+		std::list<Channel*> getChanList();
         // ***********************************************************************
 
         // **************************** setters **********************************
@@ -120,6 +121,7 @@ class   Client
 		void				remMod(char mod);
         // ***********************************************************************
         void                clear_info();
+		int CheckChannels(std::string name);
 };
 
 #include "Channel.hpp"

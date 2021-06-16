@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaefourn <gaefourn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/11 08:22:44 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/16 12:04:38 by gaefourn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -510,7 +510,8 @@ int Server::checkChannels(std::string name, Client *client)
 			(*begin)->addClient(client);
 			client->join_channel(*begin);
 			client->setCurrentChan(name);
-			clientWriteOnChannel((*begin)->getChanName(), "joined the channel", client);
+			if (client->CheckChannels(name))
+				clientWriteOnChannel((*begin)->getChanName(), "joined the channel", client);
 			return 1;
 		}
 	}

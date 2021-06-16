@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: gaefourn <gaefourn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:19:44 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/05/10 16:41:38 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/16 10:39:32 by gaefourn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ std::string const &Client::getClientBuf()     	const   { return (this->client_bu
 std::string const &Client::getServName() 		const { return server_name; }
 std::string const &Client::getHostName() 		const { return host_name; }
 std::string const &Client::getRealName() 		const { return real_name; }
+std::list<Channel*> Client::getChanList() { return channels; }
 bool				Client::getIsHostName() const { return host_name_set; }
 bool				Client::getIsServName() const { return serv_name_set; }
 bool				Client::getIsRealName() const { return real_name_set; }
@@ -138,4 +139,15 @@ void Client::remMod(char mod)
 	size_t pos = mods.find(mod);
 	if (pos != std::string::npos)
 		mods.erase(pos, 1);
+}
+
+int Client::CheckChannels(std::string name){
+	std::list<Channel*> channels = getChanList();
+	std::list<Channel*>::iterator end = channels.end();
+	for (std::list<Channel*>::iterator begin = channels.begin(); begin != end; begin++)
+	{
+		if ((*begin)->getChanName() == name)
+			return 0;
+	}
+	return 1;	
 }
