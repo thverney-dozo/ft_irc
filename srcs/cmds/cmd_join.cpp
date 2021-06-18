@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_join.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaefourn <gaefourn@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 00:50:36 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/16 14:26:53 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/18 11:08:17 by gaefourn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,19 @@ void	cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 				//I dont know if this is mandatory or not
 				//Maybe there is others mods to check;
 				serv->fdwrite(client->getFd(), ":" + client->getUsername() + "!localhost JOIN " + split[1] + "\r\n");
+				// Message d'arrivee sur le chan pour tous les clients connectes
+				std::list<Channel*> list = serv->getChannels();
+				std::list<Channel*>::iterator list_begin = list.begin();
+				for (std::list<Channel*>::iterator list_end = list.end(); list_begin != list_end; list_begin++)
+				{
+					if ((*list_begin)->getChanName() == split[1])
+					{
+						std::list<Client*> client_list = (*list_begin)->getConnectedClients();
+						std::list<Client*>::iterator client_begin = client_list.begin();
+						for (std::list<Client*>::iterator client_end = client_list.end(); client_end != client_begin; client_begin++)
+							serv->fdwrite((*client_begin)->getFd(), ":" + client->getName() + "!localhost PRIVMSG " + split[1] + " joined the channel." + "\r\n");
+					}
+				}
 				std::cout << "Client joined channel : " << split[1] << std::endl;
 			}
 		}

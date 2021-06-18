@@ -28,3 +28,10 @@ CLIENT
 Remettre le code au propre
 
 host network ???
+
+________________________________________________________________________________
+
+Modes :
+Premier utilisateur a rejoindre le serveur => moderateur serveur
+																=> Pourra kick d'autres utilisateurs;
+																=> Pourra promouvoir d'autres users en moderateur
