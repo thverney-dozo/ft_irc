@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_join.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaefourn <gaefourn@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 00:50:36 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/18 11:08:17 by gaefourn         ###   ########.fr       */
+/*   Updated: 2021/06/18 14:42:06 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ void	cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 				//Check if there is a password case and check if the password is right
 				//I dont know if this is mandatory or not
 				//Maybe there is others mods to check;
-				serv->fdwrite(client->getFd(), ":" + client->getUsername() + "!localhost JOIN " + split[1] + "\r\n");
+				serv->fdwrite(client->getFd(), ":" + client->getName() + "!localhost JOIN " + split[1] + "\r\n");
 				// Message d'arrivee sur le chan pour tous les clients connectes
 				std::list<Channel*> list = serv->getChannels();
 				std::list<Channel*>::iterator list_begin = list.begin();

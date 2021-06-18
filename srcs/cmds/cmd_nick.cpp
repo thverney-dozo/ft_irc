@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_nick.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaefourn <gaefourn@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/28 15:19:53 by thverney          #+#    #+#             */
-/*   Updated: 2021/06/16 12:22:15 by gaefourn         ###   ########.fr       */
+/*   Updated: 2021/06/18 14:24:30 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,20 @@ void	cmd_nick(std::vector<std::string> split, Server *serv, Client *client)
 			write(client->getFd(), "/nick cmd must be followed by a nickname\n", 42); // must be changed by ERR_NONICKNAMEGIVEN
 		else
 		{
+			if (client->getIsNickSet() == false)
+				serv->fdwrite(client->getFd(), ":" + client->getName() + "!localhost NICK " + split[1] + "\r\n");
+			else
+				serv->fdwrite(client->getFd(), ":" + client->getName() + " NICK " + split[1] + "\r\n");
+			
+			std::list<Channel*> chanlist = client->getChanList();
+			std::list<Channel*>::iterator chanlist_end = chanlist.end();
+			for (std::list<Channel*>::iterator chanlist_begin = chanlist.begin(); chanlist_begin != chanlist_end; chanlist_begin++)
+			{
+				std::list<Client*> clientlist = (*chanlist_begin)->getConnectedClients();
+				std::list<Client*>::iterator clientlist_end = clientlist.end();
+				for (std::list<Client*>::iterator clientlist_begin = clientlist.begin(); clientlist_end != clientlist_begin; clientlist_begin++)
+					serv->fdwrite((*clientlist_begin)->getFd(), ":" + client->getName() + "!localhost PRIVMSG " + (*chanlist_begin)->getChanName() + " :" + client->getName() + " changed nickname to " + split[1] + "\r\n");
+			}
 			client->setNickname(split[1]);
 			//CHECK NICKNAME, IF IN USE ERR_NICKNAMEINUSE
 			client->setNickSet(true);

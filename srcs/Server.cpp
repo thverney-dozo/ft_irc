@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaefourn <gaefourn@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/16 14:40:44 by gaefourn         ###   ########.fr       */
+/*   Updated: 2021/06/18 14:44:42 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -478,7 +478,7 @@ void Server::createChannel(std::string name, Client *client)
 	client->join_channel(new_chan);
 	// client->setCurrentChan(new_chan->getChanName());
 	std::cout << "C'EST CAAA " << name << std::endl;
-	fdwrite(client->getFd(), ":" + client->getUsername() + "!localhost JOIN " + name + "\r\n");
+	fdwrite(client->getFd(), ":" + client->getName() + "!localhost JOIN " + name + "\r\n");
 	// fdwrite(client->getFd(), "Channel " + name + " successfully created\n");
 }
 
