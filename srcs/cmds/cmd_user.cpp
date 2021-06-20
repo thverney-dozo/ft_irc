@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_user.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaefourn <gaefourn@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/28 15:19:59 by thverney          #+#    #+#             */
-/*   Updated: 2021/06/16 12:19:25 by gaefourn         ###   ########.fr       */
+/*   Updated: 2021/06/20 21:11:33 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,11 @@ void	cmd_user(std::vector<std::string> split, Server *serv, Client *client)
 	(void)serv;
 	if (client->getIsServer() == false) 				// if connection is a client
 	{
-		if (split.size() == 1)
-			write(client->getFd(), "/user cmd must be followed by a username\n", 42); // must be changed by ERR_NEEDMOREPARAMS
-		else if (split.size() >= 4)
+		if (client->getIsUserSet() == true)
+			serv->fdwrite(client->getFd(), ":localhost 462 " + client->getName() + " USER :Unauthorized command (already registered)\r\n"); //ERR_NEEDMOREPARAMS
+		else if (split.size() == 1)
+			serv->fdwrite(client->getFd(), ":localhost 461 " + client->getName() + " USER :Not enough parameters\r\n"); //ERR_NEEDMOREPARAMS
+		else if (split.size() >= 4 && client->getIsUserSet() == false)
 		{
 			client->setUsername(split[1]);
 			client->setHostName(split[2]);
@@ -29,15 +31,18 @@ void	cmd_user(std::vector<std::string> split, Server *serv, Client *client)
 			client->setHostName(true);
 			client->setServerName(true);
 			client->setRealName(true);
+			if (client->getIsNickSet() == true)
+				serv->fdwrite(client->getFd(), ":localhost 001 " + client->getName() + " :Welcome to the server\r\n");
+			if (client->getIsNickSet() == true)
+				client->setRegister(true);
 			// NEED TO CHECK IF USER ALREADY EXISTS, IF HE IS, ERR_ALREADYREGISTER
+			//USER guest 8 * :Ronnie Reagan par exemple
 		}
-		else
-		{
-			client->setUsername(split[1]);
-			client->setUserSet(true);
-		}
+		// else
+		// {
+		// 	client->setUsername(split[1]);
+		// 	client->setUserSet(true);
+		// }
 
 	}
-	else // if connection is a server
-	{}
 }

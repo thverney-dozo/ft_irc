@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaefourn <gaefourn@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/16 14:40:53 by gaefourn         ###   ########.fr       */
+/*   Updated: 2021/06/20 21:08:25 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ class Server
 		std::list<Channel*> getChannels() const; //ca doit retourner une list de channels j'imagine mais la jsuis moi meme perdu dans ce que je fais
         
         // ####### internal server layer ##########
+        void    registration_client(Client *client, std::string const &s);
         void    registration(Client *client, const char *buf);
         void    pass_register_step(Client *client, std::vector<std::string> splited_cmd);
         void    nick_register_step(Client *client, std::vector<std::string> splited_cmd);
@@ -106,6 +107,7 @@ class Server
 
 		void	fdwrite(int fd, std::string str);
         void    check_error(int ret, std::string const &str);
+        std::string write_error(int code);
 		std::vector<std::string>	ft_split_cmd(std::string msg);
         std::vector<std::string>	ft_split_recv_data(std::string data);
 

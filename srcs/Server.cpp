@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/18 14:44:42 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/20 21:43:13 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,7 +169,7 @@ void	Server::send_data_to_network(std::vector<std::string>::iterator data_cursor
 void    Server::receiveFromClient(int fd_i)
 {
 
-	std::cout << this->clients_buffer[fd_i];
+	// std::cout << this->clients_buffer[fd_i];
 
 	if (Sender->getIsServer() == true)
 		return;
@@ -179,9 +179,9 @@ void    Server::receiveFromClient(int fd_i)
 	{
 		std::string dat = (*data_cursor);
 		dat.erase(dat.size() - 1, 1);
-		std::cout << "->" << "[" << dat << "]" << std::endl;
+		std::cout << "\n->data to process: " << "[" << dat << "]" << std::endl;
 		if (Sender->getIsRegister() == false)
-				registration(Sender, (*data_cursor).c_str());
+				registration_client(Sender, (*data_cursor)); // registration(Sender, (*data_cursor).c_str());
 		else if (find_cmd((*data_cursor), Sender)) // return if cmd was found and launched
 				return;
 		else
@@ -190,8 +190,12 @@ void    Server::receiveFromClient(int fd_i)
 			clientWriteOnChannel(Sender->getCurrentChan(), (*data_cursor), Sender);
 		}
 	}
-	if (Sender->getIsRegister() == false)
+	if (Sender->getIsRegister() == false && Sender->getIsUserSet() == false && Sender->getIsNickSet() == false)
 		fdwrite(Sender->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
+	else if (Sender->getIsRegister() == false && Sender->getIsUserSet() == false && Sender->getIsNickSet() == true)
+		fdwrite(Sender->getFd(), "Almost done, now try \n-USER <username> <hostname> <servername> <realname>\n");
+	else if (Sender->getIsRegister() == false && Sender->getIsUserSet() == true && Sender->getIsNickSet() == false)
+		fdwrite(Sender->getFd(), "Almost done, now try \n-NICK <nickname>\n");
 
 }
 
@@ -276,45 +280,56 @@ void	Server::init_commands()
 	//  soit 37 commandes
 }
 
-void    Server::registration(Client *client, const char *buf)
+void    Server::registration_client(Client *client, std::string const &s)
 {
-	std::vector<std::string> splited_cmd = ft_split_cmd(buf);
-	int i = 0;
-	for (size_t j = 0; j != splited_cmd.size(); j++)
-	{
-		//Check si la commande envoyee par le client est user || nick || cap ls pr recupererer les infos de capabilities du server
-		//Si c'est aucun de ceux la, renvoie une erreur
-		std::vector<std::string> splited_cmd = ft_split_cmd(buf); // equivalent à un char ** de retour de split
-		if (splited_cmd.empty())
-			break;
-		if (splited_cmd[0][0] == ':' && !splited_cmd[1].empty())
-			j++;
-		if (splited_cmd[j].compare("CAP") == 0 || splited_cmd[j].compare("LS") == 0)
-			i++;
-		if (splited_cmd[j].compare("user") != 0 && splited_cmd[j].compare("USER") != 0 && splited_cmd[j].compare("/user") != 0 && splited_cmd[j].compare("NICK") != 0 &&
-			splited_cmd[j].compare("nick") != 0 && splited_cmd[j].compare("/nick") != 0)
-			continue;
-		std::map<std::string, Command>::iterator find_cmd = this->cmd.find(splited_cmd[j]); // Cherche la command
-		if (find_cmd != cmd.end())
-		{
-			i++;
-			std::vector<std::string> cmds;
-			cmds.push_back(splited_cmd[j]);
-			if (splited_cmd[j].compare("NICK") == 0 || splited_cmd[j].compare("nick") == 0 || splited_cmd[j].compare("/nick") == 0)
-				cmds.push_back(splited_cmd[j + 1]);
-			if (splited_cmd[j].compare("USER") == 0 || splited_cmd[j].compare("user") == 0 || splited_cmd[j].compare("/user") == 0)
-				{
-					while (j != splited_cmd.size() - 1)
-						cmds.push_back(splited_cmd[++j]);
-				}
-			(*find_cmd).second.exe(cmds, this, client); // execute la command si elle existe
-		}
-	}
+	if (s.compare(0,4,"NICK") == 0 || s.compare(0,5,"/NICK") == 0 || s.compare(0,5,"/nick") == 0
+	|| s.compare(0,4,"USER") == 0 || s.compare(0,5,"/USER") == 0 || s.compare(0,5,"/user") == 0)
+		find_cmd(s, Sender);
 	if (client->getIsNickSet() == true && client->getIsUserSet() == true)
 		client->setRegister(true);
 	if (client->getIsRegister() == true)
 		fdwrite(client->getFd(), "Registration done !\n");
 }
+
+// void    Server::registration(Client *client, const char *buf)
+// {
+// 	std::vector<std::string> splited_cmd = ft_split_cmd(buf);
+// 	int i = 0;
+// 	for (size_t j = 0; j != splited_cmd.size(); j++)
+// 	{
+// 		//Check si la commande envoyee par le client est user || nick || cap ls pr recupererer les infos de capabilities du server
+// 		//Si c'est aucun de ceux la, renvoie une erreur
+// 		std::vector<std::string> splited_cmd = ft_split_cmd(buf); // equivalent à un char ** de retour de split
+// 		if (splited_cmd.empty())
+// 			break;
+// 		if (splited_cmd[0][0] == ':' && !splited_cmd[1].empty())
+// 			j++;
+// 		if (splited_cmd[j].compare("CAP") == 0 || splited_cmd[j].compare("LS") == 0)
+// 			i++;
+// 		if (splited_cmd[j].compare("user") != 0 && splited_cmd[j].compare("USER") != 0 && splited_cmd[j].compare("/user") != 0 && splited_cmd[j].compare("NICK") != 0 &&
+// 			splited_cmd[j].compare("nick") != 0 && splited_cmd[j].compare("/nick") != 0)
+// 			continue;
+// 		std::map<std::string, Command>::iterator find_cmd = this->cmd.find(splited_cmd[j]); // Cherche la command
+// 		if (find_cmd != cmd.end())
+// 		{
+// 			i++;
+// 			std::vector<std::string> cmds;
+// 			cmds.push_back(splited_cmd[j]);
+// 			if (splited_cmd[j].compare("NICK") == 0 || splited_cmd[j].compare("nick") == 0 || splited_cmd[j].compare("/nick") == 0)
+// 				cmds.push_back(splited_cmd[j + 1]);
+// 			if (splited_cmd[j].compare("USER") == 0 || splited_cmd[j].compare("user") == 0 || splited_cmd[j].compare("/user") == 0)
+// 				{
+// 					while (j != splited_cmd.size() - 1)
+// 						cmds.push_back(splited_cmd[++j]);
+// 				}
+// 			(*find_cmd).second.exe(cmds, this, client); // execute la command si elle existe
+// 		}
+// 	}
+// 	if (client->getIsNickSet() == true && client->getIsUserSet() == true)
+// 		client->setRegister(true);
+// 	if (client->getIsRegister() == true)
+// 		fdwrite(client->getFd(), "Registration done !\n");
+// }
 
 void    Server::check_error(int ret, std::string const &str)
 {
@@ -477,7 +492,6 @@ void Server::createChannel(std::string name, Client *client)
 	new_chan->addClient(client);
 	client->join_channel(new_chan);
 	// client->setCurrentChan(new_chan->getChanName());
-	std::cout << "C'EST CAAA " << name << std::endl;
 	fdwrite(client->getFd(), ":" + client->getName() + "!localhost JOIN " + name + "\r\n");
 	// fdwrite(client->getFd(), "Channel " + name + " successfully created\n");
 }

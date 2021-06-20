@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/28 15:19:53 by thverney          #+#    #+#             */
-/*   Updated: 2021/06/18 14:24:30 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/20 21:11:13 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void	cmd_nick(std::vector<std::string> split, Server *serv, Client *client)
 	if (client->getIsServer() == false) 				// if connection is a client
 	{
 		if (split.size() == 1)
-			write(client->getFd(), "/nick cmd must be followed by a nickname\n", 42); // must be changed by ERR_NONICKNAMEGIVEN
+			serv->fdwrite(client->getFd(), ":localhost 431 " + client->getName() + " NICK :No nickname given\r\n");  // ERR_NONICKNAMEGIVEN
 		else
 		{
 			if (client->getIsNickSet() == false)
@@ -43,6 +43,8 @@ void	cmd_nick(std::vector<std::string> split, Server *serv, Client *client)
 			client->setNickname(split[1]);
 			//CHECK NICKNAME, IF IN USE ERR_NICKNAMEINUSE
 			client->setNickSet(true);
+			if (client->getIsUserSet() == true)
+				client->setRegister(true);
 			//SEND SERVER RESPONSE TO CLIENT
 		}
 	}

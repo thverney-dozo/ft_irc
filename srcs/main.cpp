@@ -100,7 +100,7 @@ void    *handle_connection(Server *server)
 						break;
 					}
 					insert_read_data_in_client_buffer(server, buffer_read, i);
-					if (str_len < 2048)
+					if (str_len < 2048 && buffer_read[str_len - 1] == '\n')
 					{
 						// std::cout << "str_len < 2048" << std::endl;
 						server->Sender = server->getClients().find(i)->second; // current client to deal with
