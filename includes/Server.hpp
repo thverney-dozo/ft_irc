@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 18:48:50 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/20 21:08:25 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/22 15:21:16 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,8 @@ class Server
         int                     		host_sock;
         struct sockaddr_in      		serv_adr;
         int                     		client_nb;
-        std::string                     host_port;     // host
         std::string                     local_port;
         std::string             		local_password;
-        std::string                     host_ip;        // host
-        std::string                     host_password;  // host
         std::map<int, Client*>          clients;
         fd_set                  		reads;
         fd_set                  		cpy_reads;
@@ -52,8 +49,7 @@ class Server
 
     public:
         Server();
-        Server(std::string const &local_port, std::string const &local_password, std::string const &host_ip,
-			   std::string const &host_port, std::string const &host_password);
+        Server(std::string const &local_port, std::string const &local_password);
         virtual ~Server();
         Client                          *Sender;   // current client to deal with
 		std::map<int, std::string>	    clients_buffer;
@@ -64,9 +60,6 @@ class Server
         int                     getFdMax() const;
 		Channel			        *getThisChan(std::string name);
         std::string const       &getBuf() const;
-        std::string const       &getHostIp() const;        // host
-        std::string const       &getHostPort() const;     // host
-        std::string const       &getHostPassword() const;  
         std::string const       &getLocalPort() const;
         std::string const       &getLocalPassword() const;
         fd_set                  getReads();

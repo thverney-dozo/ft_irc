@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/22 14:53:56 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/22 15:49:27 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,60 +15,51 @@
 Server::Server() // quand on nous envera pas d'info donc il faudra créer le serveur
 {}
 
-Server::Server(std::string const &local_port, std::string const &local_password, std::string const &host_ip,
-			   std::string const &host_port, std::string const &host_password)
+Server::Server(std::string const &local_port, std::string const &local_password)
 {
 	this->local_port = local_port;
 	this->local_password = local_password;
 
-	if (!host_ip.empty() && !host_port.empty())
-	{
-		this->host_ip = host_ip;
-		this->host_port = host_port;
-		this->host_password = host_password;
-	}
     setup_server(this->local_port.c_str());
-	if (!host_ip.empty() && !host_port.empty())
-		setup_host_connexion();
 	
 	init_commands();
 }
 
-void	Server::setup_host_connexion()
-{
-	/*
-	1. create a socket.
-	2. bind* - this is probably be unnecessary because you're the client, not the server.
-	3. connect to a server.
-	4. send/recv - repeat until we have or receive data
-	5. shutdown to end read/write.
-	6. close to releases data.
-	*/
-	struct sockaddr_in host_adr;
-	int enable = -1;
+// void	Server::setup_host_connexion()
+// {
+// 	/*
+// 	1. create a socket.
+// 	2. bind* - this is probably be unnecessary because you're the client, not the server.
+// 	3. connect to a server.
+// 	4. send/recv - repeat until we have or receive data
+// 	5. shutdown to end read/write.
+// 	6. close to releases data.
+// 	*/
+// 	struct sockaddr_in host_adr;
+// 	int enable = -1;
 
-	check_error((this->host_sock = socket(AF_INET, SOCK_STREAM, 0)), "ERROR host socket");
-	check_error(setsockopt(this->host_sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)), "host_sock can't be used");
-	host_adr.sin_family = AF_INET;
-  	host_adr.sin_port = htons(atoi(this->host_port.c_str()));
-  	struct hostent *host_info = gethostbyname(this->host_ip.c_str());
+// 	check_error((this->host_sock = socket(AF_INET, SOCK_STREAM, 0)), "ERROR host socket");
+// 	check_error(setsockopt(this->host_sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)), "host_sock can't be used");
+// 	host_adr.sin_family = AF_INET;
+//   	host_adr.sin_port = htons(atoi(this->host_port.c_str()));
+//   	struct hostent *host_info = gethostbyname(this->host_ip.c_str());
 	
-	// A REMPLACER PAR UNE FONCTION AUTORISEE !!!!!!!!
-	memcpy(&host_adr.sin_addr, host_info->h_addr_list[0], host_info->h_length);
-	// A REMPLACER PAR UNE FONCTION AUTORISEE !!!!!!!!
+// 	// A REMPLACER PAR UNE FONCTION AUTORISEE !!!!!!!!
+// 	memcpy(&host_adr.sin_addr, host_info->h_addr_list[0], host_info->h_length);
+// 	// A REMPLACER PAR UNE FONCTION AUTORISEE !!!!!!!!
 	
-	check_error(connect(this->host_sock, (struct sockaddr *)&host_adr, sizeof(host_adr)), "ERROR host connect");
-	fcntl(this->host_sock, F_SETFL, O_NONBLOCK);	
-	send(this->host_sock, ":myserv USER thio0247 bahhjsp okbg :theo gaetan\n:myserv NICK thio0247 bahhjsp okbg :theo gaetan\n:myserv SERVER test.oulu.fi 1 :[tolsun.oulu.fi]\n", 145, 0);
+// 	check_error(connect(this->host_sock, (struct sockaddr *)&host_adr, sizeof(host_adr)), "ERROR host connect");
+// 	fcntl(this->host_sock, F_SETFL, O_NONBLOCK);	
+// 	send(this->host_sock, ":myserv USER thio0247 bahhjsp okbg :theo gaetan\n:myserv NICK thio0247 bahhjsp okbg :theo gaetan\n:myserv SERVER test.oulu.fi 1 :[tolsun.oulu.fi]\n", 145, 0);
 
-	Client *new_client = new Client(this->host_sock, host_adr, sizeof(host_adr));
-	new_client->setIsServer(true); 
-	// this->clients.push_back(new_client);
-	this->clients.insert(std::pair<int, Client*>(this->host_sock, new_client));
-	FD_SET(this->host_sock, &(this->reads));
-	if (this->fd_max < this->host_sock)
-		this->fd_max = this->host_sock;
-}
+// 	Client *new_client = new Client(this->host_sock, host_adr, sizeof(host_adr));
+// 	new_client->setIsServer(true); 
+// 	// this->clients.push_back(new_client);
+// 	this->clients.insert(std::pair<int, Client*>(this->host_sock, new_client));
+// 	FD_SET(this->host_sock, &(this->reads));
+// 	if (this->fd_max < this->host_sock)
+// 		this->fd_max = this->host_sock;
+// }
 
 Server::~Server()
 {}
@@ -156,14 +147,7 @@ void	Server::send_data_to_network(std::vector<std::string>::iterator data_cursor
 	
 	for (std::map<int, Client*>::iterator it_serv = this->clients.begin(); it_serv != ite_serv; ++it_serv)
 		if ((*it_serv).second->getIsServer() == true)
-		{
-			// std::cout << "___________________ok" << (*data_cursor).c_str() << "___________________" << std::endl;
-			// send((*it_serv).second->getFd(), (*data_cursor).c_str(), sizeof((*data_cursor)), 0);
-
 			fdwrite((*it_serv).second->getFd(), (*data_cursor+ "\n").c_str());
-			// send(this->host_sock, (*data_cursor).c_str(), sizeof((*data_cursor)), 0);
-		}
-	
 }
 
 void    Server::receiveFromClient(int fd_i)
@@ -281,6 +265,11 @@ void	Server::init_commands()
 
 void    Server::registration_client(Client *client, std::string const &s)
 {
+	if (!local_password.empty() && (s.compare(0,4,"PASS") == 0 || s.compare(0,5,"/PASS") == 0 || s.compare(0,5,"/pass") == 0))
+		find_cmd(s, Sender);
+	if (!local_password.empty() && client->getIsPassSet() == false)
+		return;
+	// 	deconnexion(client->getFd());
 	if (s.compare(0,4,"NICK") == 0 || s.compare(0,5,"/NICK") == 0 || s.compare(0,5,"/nick") == 0
 	|| s.compare(0,4,"USER") == 0 || s.compare(0,5,"/USER") == 0 || s.compare(0,5,"/user") == 0)
 		find_cmd(s, Sender);
@@ -423,21 +412,6 @@ int     Server::getHostSock() const
 int     Server::getFdMax() const
 {
     return (this->fd_max);
-}
-
-std::string const       &Server::getHostIp() const
-{
-	return (this->host_ip);
-}
-
-std::string const       &Server::getHostPort() const
-{
-	return (this->host_port);
-}
-
-std::string const       &Server::getHostPassword() const
-{
-	return (this->host_password);
 }
 
 std::string const       &Server::getLocalPort() const
