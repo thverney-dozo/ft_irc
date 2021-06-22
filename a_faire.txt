@@ -1,37 +1,11 @@
-ADD reference client.
+Important : MODES CHAN
+Finir la commande join apres avoir fais les mods, et verif les messages d'erreur pr join.
 
-Suppression de la RFC.
 
-Ajout des fonctionnalités requises.
+PASS finie;
+PRIVMSG finie;
+QUIT finie;
+NICK check les messages derreur;
+USER finir la commande propre;
+PART a verifier ???;
 
-Authentification, définir un surnom, un nom d'utilisateur, rejoindre un canal, pm.
-
-Admin/user.
-
-Autorise toutes les fonctions C++98 et C.
-
-Select, poll, epoll et kqueue sont autorisés au lieu de select seulement.
-
-COMMANDES :
-Join / PRESQUE TERMINEE
-Part / A VERIFIER
-Nick / NORMALEMENT TERMINEE ??
-Pass / NORMALEMENT TERMINEE ??
-User / NORMALEMENT TERMINEE
-Mode / A FINIR PROPREMENT ET A DETERMINER QUELS MODS FAUT FAIRE
-Privmsg / NORMALEMENT TERMINEE ??
-
-CLIENT 
--Envoyer correctement les reponses serveur au client;
--Envoyer les bons messages correspondant aux commandes a l'utilisateur;
-
-Remettre le code au propre
-
-host network ???
-
-________________________________________________________________________________
-
-Modes :
-Premier utilisateur a rejoindre le serveur => moderateur serveur
-																=> Pourra kick d'autres utilisateurs;
-																=> Pourra promouvoir d'autres users en moderateur
