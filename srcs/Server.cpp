@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/20 21:43:13 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/22 14:53:56 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,13 +190,12 @@ void    Server::receiveFromClient(int fd_i)
 			clientWriteOnChannel(Sender->getCurrentChan(), (*data_cursor), Sender);
 		}
 	}
-	if (Sender->getIsRegister() == false && Sender->getIsUserSet() == false && Sender->getIsNickSet() == false)
-		fdwrite(Sender->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
-	else if (Sender->getIsRegister() == false && Sender->getIsUserSet() == false && Sender->getIsNickSet() == true)
-		fdwrite(Sender->getFd(), "Almost done, now try \n-USER <username> <hostname> <servername> <realname>\n");
-	else if (Sender->getIsRegister() == false && Sender->getIsUserSet() == true && Sender->getIsNickSet() == false)
-		fdwrite(Sender->getFd(), "Almost done, now try \n-NICK <nickname>\n");
-
+//	if (Sender->getIsRegister() == false && Sender->getIsUserSet() == false && Sender->getIsNickSet() == false)
+//		fdwrite(Sender->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
+//	else if (Sender->getIsRegister() == false && Sender->getIsUserSet() == false && Sender->getIsNickSet() == true)
+//		fdwrite(Sender->getFd(), "Almost done, now try \n-USER <username> <hostname> <servername> <realname>\n");
+	 if (Sender->getIsRegister() == false && Sender->getIsUserSet() == true && Sender->getIsNickSet() == false)
+		fdwrite(Sender->getFd(), "You need a nickname.\nPlease try NICK command.\n");
 }
 
 void	Server::init_commands()
