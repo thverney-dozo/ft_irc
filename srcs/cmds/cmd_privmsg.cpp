@@ -2,6 +2,16 @@
 
 void	cmd_privmsg(std::vector<std::string> split, Server *serv, Client *client)
 {
+	if (split.size() == 1)
+	{
+		serv->fdwrite(client->getFd(), ":localhost 411 " + client->getName() + " PRIVMSG :No recipient given (<command>)\r\n");  // ERR_NONICKNAMEGIVEN
+		return;
+	}
+	if (split.size() == 2)
+	{
+		serv->fdwrite(client->getFd(), ":localhost 412 " + client->getName() + " PRIVMSG :No text to send\r\n");  // ERR_NONICKNAMEGIVEN
+		return;
+	}
 	std::map<int, Client*> list = serv->getClients();
 	std::map<int, Client*>::iterator ite = list.begin();
 	for (std::map<int, Client*>::iterator it = list.end(); it != ite; ite++)
@@ -56,6 +66,5 @@ void	cmd_privmsg(std::vector<std::string> split, Server *serv, Client *client)
 		}
 	}
 	//CHECK IF ITS A USER OR A CHAN, IF ITS A CHAN ->ERR_CANNOTSENDTOCHAN
-	//ERR_NOSUCHNICK
-	serv->fdwrite(client->getFd(), "Error: user \"" + split[1] + "\" does not exist\n");
+	serv->fdwrite(client->getFd(), ":localhost 401 " + client->getName() + " PRIVMSG " + split[1] +  " :No such nick/channel\r\n"); // ERR_NOSUCHNICK
 }
