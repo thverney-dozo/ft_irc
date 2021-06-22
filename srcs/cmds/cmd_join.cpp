@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 00:50:36 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/22 14:46:47 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/22 17:00:12 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,6 @@ void cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 					//Check if there is a password case and check if the password is right
 					//I dont know if this is mandatory or not
 					//Maybe there is others mods to check;
-					serv->fdwrite(client->getFd(), ":" + client->getName() + "!localhost JOIN " + (*begin) + "\r\n");
 					// Message d'arrivee sur le chan pour tous les clients connectes
 					std::list<Channel *> list = serv->getChannels();
 					std::list<Channel *>::iterator list_begin = list.begin();
@@ -93,12 +92,22 @@ void cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 					{
 						if ((*list_begin)->getChanName() == (*begin))
 						{
+							std::list<Client*> clist = (*list_begin)->getConnectedClients();
+							std::list<Client*>::iterator it = clist.begin();
+							for (std::list<Client*>::iterator ite = clist.end(); ite != it; it++)
+							{
+								if ((*it)->getUsername() == client->getUsername())
+									return ;
+							}
+							client->join_channel((*list_begin));
+							(*list_begin)->addClient(client);
 							std::list<Client *> client_list = (*list_begin)->getConnectedClients();
 							std::list<Client *>::iterator client_begin = client_list.begin();
 							for (std::list<Client *>::iterator client_end = client_list.end(); client_end != client_begin; client_begin++)
 								serv->fdwrite((*client_begin)->getFd(), ":" + client->getName() + "!localhost PRIVMSG " + (*begin) + " joined the channel." + "\r\n");
 						}
 					}
+					serv->fdwrite(client->getFd(), ":" + client->getName() + "!localhost JOIN " + (*begin) + "\r\n");
 					std::cout << "Client joined channel : " << (*begin) << std::endl;
 				}
 			}

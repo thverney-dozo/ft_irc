@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/22 15:49:27 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/22 16:58:54 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -493,21 +493,12 @@ Channel *Server::getThisChan(std::string name)
 
 int Server::checkChannels(std::string name, Client *client)
 {
+	(void)client;
 	std::list<Channel*>::iterator begin = channels.begin();
 	for (std::list<Channel*>::iterator end = channels.end(); begin != end; begin++)
 	{
 		if (name == (*begin)->getChanName())
-		{
-			(*begin)->addClient(client);
-			client->join_channel(*begin);
-			client->setCurrentChan(name);
-			if (client->CheckChannels(name))
-			{
-				// fdwrite(client->getFd(), ":" + client->getUsername() + "!localhost JOIN " + name + "\r\n");
-				clientWriteOnChannel((*begin)->getChanName(), "joined the channel", client);
-			}
 			return 1;
-		}
 	}
 	return 0;
 }
