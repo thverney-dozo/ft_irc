@@ -37,7 +37,13 @@ void setMods(std::string name, char sign, char mod, Server *serv, Client *client
 void setModsToChan(std::string name, char sign, char mod, std::string param, Client *client, Server *serv)
 {
 	Channel *chan = serv->getThisChan(name);
-	
+	if (chan == 0)
+		return ;	
+	if (chan->checkPremiumList(client->getName()) == 0)
+	{
+		serv->fdwrite(client->getFd(), "Error, you are not an operator.\n");
+		return ;
+	}
 	//name = chan name
 	//sign = sign
 	//mod = mod
@@ -46,21 +52,36 @@ void setModsToChan(std::string name, char sign, char mod, std::string param, Cli
 	std::list<Client*>::iterator it = list.begin();
 	if (mod == 'o')
 	{
-		if ((*it)->getName() == param)
+		for (std::list<Client*>::iterator ite = list.end(); it != ite; it++)
 		{
-			if (mod == '+')
+			if ((*it)->getName() == (param))
 			{
-				if (chan->checkPremiumList((*it)->getName()) == 0)
-					chan->addPremiumClient((*it));
-			}
-			else if (mod == '-')
-			{
-				if (chan->checkPremiumList((*it)->getName()) == 0)
-					chan->removePremiumClient((*it));
+				if (sign == '+')
+				{
+					if ( client->getName() == param)
+					{
+						serv->fdwrite(client->getFd(), "Error, you cannot op yourself.\n");
+						return ;
+					}
+					if (chan->checkPremiumList((*it)->getName()) == 0)
+					{
+						chan->addPremiumClient((*it));
+						return ;
+					}
+				}
+				else if (sign == '-')
+				{
+					if (chan->checkPremiumList((*it)->getName()) == 0)
+					{
+						chan->removePremiumClient((*it));
+						return ;
+					}
+				}
 			}
 		}
+		serv->fdwrite(client->getFd(), "Error, this user is not on the channel.\n");
 	}
-	else if (mod == 'l')
+/*	else if (mod == 'l')
 	{
 		if (atoi(param.c_str()) < chan->getCurrentUsers())
 			serv->fdwrite(client->getFd(), "Error, cannot set limit to" + param + ".\n");
@@ -87,7 +108,7 @@ void setModsToChan(std::string name, char sign, char mod, std::string param, Cli
 			}
 		}
 		//Finir B et K si y a besoin de le faire
-	}
+	}*/
 }
 
 //void setBans(std::string name, char sign, char mod, std::string user, std::string mask, Client *client, Server *serv)
@@ -99,7 +120,6 @@ void cmd_mode(std::vector<std::string> split, Server *serv, Client *client)
 {
 	if (split.size() > 2)
 	{
-		std::cout << split[1] << "|" << split[2] << "|" << std::endl;
 		if (serv->checkChannelList(split[1]) == 1)
 		{
 			if (split[2][0] != '+' && split[2][0] != '-')
