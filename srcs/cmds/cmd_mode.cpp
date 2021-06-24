@@ -9,10 +9,8 @@ void setMods(std::string name, char sign, char mod, Server *serv)
 	{
 		if(name == (*begin)->getChanName())
 			{
-				if (sign == '+')
-					(*begin)->addFlag(mod);
-				else
-					(*begin)->removeFlag(mod);
+				if (sign == '+' && mod == 'i')
+					(*begin)->setInviteOnly(true);
 			}
 	}
 }
@@ -69,10 +67,6 @@ void setModsToChan(std::string name, char sign, char mod, std::string param, Cli
 		}
 		//Finir B et K si y a besoin de le faire
 	}
-	else if (mod == 'i')
-	{
-		chan->setInviteOnly(true);
-	}
 }
 
 //void setBans(std::string name, char sign, char mod, std::string user, std::string mask, Client *client, Server *serv)
@@ -90,9 +84,9 @@ void cmd_mode(std::vector<std::string> split, Server *serv, Client *client)
 			if (split[2][0] != '+' && split[2][0] != '-')
 				serv->fdwrite(client->getFd(), "Error, invalid params.\n");
 			if ((split[2][1] == 'p' || split[2][1] == 's' || split[2][1] == 't'
-				|| split[2][1] == 'n' || split[2][1] == 'm' || split[2][1] == 'v') && split.size() == 3)
+				|| split[2][1] == 'n' || split[2][1] == 'm' || split[2][1] == 'v' || split[2][1] == 'i') && split.size() == 3)
 					setMods(split[1], split[2][0], split[2][1], serv);
-			else if ((split[2][1] == 'o' || split[2][1] == 'l' || split[2][1] == 'i' || split[2][1] == 'v' || split[2][1] == 'b') && split.size() == 4)
+			else if ((split[2][1] == 'o' || split[2][1] == 'l' || split[2][1] == 'v' || split[2][1] == 'b') && split.size() == 4)
 				setModsToChan(split[1], split[2][0], split[2][1], split[3], client, serv);
 		//	else if (split[2][1] == 'b' && split.size() == 5)
 			//	setBans(split[1], split[2][0], split[2][1], split[3], split[4], client, serv);
