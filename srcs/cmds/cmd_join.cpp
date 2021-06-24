@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_join.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 00:50:36 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/24 11:46:43 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/24 16:57:05 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 void cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 {
+	std::cout << "client name= " <<client->getName() << std::endl;
 	if (split.size() > 1)
 	{
 		if (split[1][0] == '#')
@@ -101,7 +102,7 @@ void cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 							std::list<Client*>::iterator it = clist.begin();
 							for (std::list<Client*>::iterator ite = clist.end(); ite != it; it++)
 							{
-								if ((*it)->getUsername() == client->getUsername())
+								if ((*it)->getName() == client->getName())
 									return ;
 							}
 							client->join_channel((*list_begin));
@@ -112,7 +113,7 @@ void cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 								serv->fdwrite((*client_begin)->getFd(), ":" + client->getName() + "!localhost PRIVMSG " + (*begin) + " joined the channel." + "\r\n");
 						}
 					}
-					serv->fdwrite(client->getFd(), ":" + client->getName() + "!localhost JOIN " + (*begin) + "\r\n");
+					serv->fdwrite(client->getFd(), ":" + client->getName() + "!~" + client->getUsername() +"@localhost JOIN :" + (*begin) + "\r\n");
 					std::cout << "Client joined channel : " << (*begin) << std::endl;
 				}
 			}
