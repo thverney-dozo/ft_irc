@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:05:39 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/16 17:12:04 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/24 11:42:38 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Channel
 		std::string _topic;
 		std::list<Client*> _clients;
 		bool	mods;
+		bool inviteonly;
 		std::string _flags;
 		int limit;
 		int currentUsers;
@@ -45,6 +46,8 @@ class Channel
 		void removeClient(Client *client);
 		void clientWriteMsg(std::string msg, Client *client);
 		void setTopic(std::string subject);
+		void setInviteOnly(bool status);
+		bool getInviteOnlyStatus();
 		void addFlag(char flags);
 		void addUser();
 		int getCurrentUsers();

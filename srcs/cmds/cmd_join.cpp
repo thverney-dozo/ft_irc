@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 00:50:36 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/22 17:00:12 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/24 11:46:43 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,10 +52,15 @@ void cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 				{
 					Channel *chan = serv->getThisChan((*begin));
 					std::string mods = chan->getMods();
-					if (mods.find('i', 0) != std::string::npos)
+					if (chan->getInviteOnlyStatus() == true)
 					{
-						serv->fdwrite(client->getFd(), "This channel is on invitation mode.\n");
-						return;
+						if (client->getInvite(chan->getChanName()) == true)
+							;
+						else
+						{
+							serv->fdwrite(client->getFd(), "This channel is on invitation mode.\n");
+							return;
+						}
 					}
 					if (mods.find('s', 0) != std::string::npos)
 					{

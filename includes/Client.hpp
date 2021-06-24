@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/15 22:20:45 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/20 20:05:13 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/24 11:53:54 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <arpa/inet.h>
 # include <iostream>
 # include <list>
+# include <vector>
 
 class Channel;
 
@@ -31,6 +32,7 @@ class   Client
         /************** channels ************/
         std::list<Channel*> channels;
 		std::string         current_channel;
+		std::vector<std::string> invitelist;
         /************************************/
 
 
@@ -94,6 +96,7 @@ class   Client
 		bool					getIsOp();
 		int                 getPass(std::string password, int clnt_sock, char tmp[1024]);
 		std::list<Channel*> getChanList();
+		bool getInvite(std::string name);
         // ***********************************************************************
 
         // **************************** setters **********************************
@@ -119,6 +122,7 @@ class   Client
 		void				setConnectionStatus(bool is_connected);
 		void				addMod(char mod);
 		void				remMod(char mod);
+		void				addInvite(std::string name);
         // ***********************************************************************
         void                clear_info();
 		int CheckChannels(std::string name);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 01:44:20 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/16 17:12:09 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/24 11:42:46 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,4 +178,14 @@ int Channel::checkPremiumList(std::string name)
 			return 1;
 	}
 	return 0;
+}
+
+bool Channel::getInviteOnlyStatus()
+{
+	return inviteonly;
+}
+
+void Channel::setInviteOnly(bool status)
+{
+	inviteonly = status;
 }

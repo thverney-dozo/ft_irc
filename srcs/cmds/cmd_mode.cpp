@@ -21,6 +21,7 @@ void setModsToChan(std::string name, char sign, char mod, std::string param, Cli
 {
 	Channel *chan = serv->getThisChan(name);
 	
+	std::cout << "|commande setmodstochan| |" << name << "| |"<< sign << "| |" << mod << "| |" << param << "|" << std::endl;
 	std::list<Client*> list = chan->getConnectedClients();
 	std::list<Client*>::iterator it = list.begin();
 	if (mod == 'o')
@@ -68,30 +69,33 @@ void setModsToChan(std::string name, char sign, char mod, std::string param, Cli
 		}
 		//Finir B et K si y a besoin de le faire
 	}
+	else if (mod == 'i')
+	{
+		chan->setInviteOnly(true);
+	}
 }
 
-void setBans(std::string name, char sign, char mod, std::string user, std::string mask, Client *client, Server *serv)
-{
-	
-}
+//void setBans(std::string name, char sign, char mod, std::string user, std::string mask, Client *client, Server *serv)
+//{
+//	
+//}
 
 void cmd_mode(std::vector<std::string> split, Server *serv, Client *client)
 {
-	if (split.size() >= 1)
+	if (split.size() > 2)
 	{
-		if (split.size() == 1)
-			serv->fdwrite(client->getFd(), "You must specify a channel or a user.\n");
+		std::cout << split[1] << "|" << split[2] << "|" << std::endl;
 		if (serv->checkChannelList(split[1]) == 1)
 		{
 			if (split[2][0] != '+' && split[2][0] != '-')
 				serv->fdwrite(client->getFd(), "Error, invalid params.\n");
-			if ((split[2][1] == 'p' || split[2][1] == 's' || split[2][1] == 'i' || split[2][1] == 't'
+			if ((split[2][1] == 'p' || split[2][1] == 's' || split[2][1] == 't'
 				|| split[2][1] == 'n' || split[2][1] == 'm' || split[2][1] == 'v') && split.size() == 3)
 					setMods(split[1], split[2][0], split[2][1], serv);
-			else if ((split[2][1] == 'o' || split[2][1] == 'l' /*|| split[2][1] == 'k' */|| split[2][1] == 'v' || split[2][1] == 'b') && split.size() == 4)
+			else if ((split[2][1] == 'o' || split[2][1] == 'l' || split[2][1] == 'i' || split[2][1] == 'v' || split[2][1] == 'b') && split.size() == 4)
 				setModsToChan(split[1], split[2][0], split[2][1], split[3], client, serv);
-			else if (split[2][1] == 'b' && split.size() == 5)
-				setBans(split[1], split[2][0], split[2][1], split[3], split[4], client, serv);
+		//	else if (split[2][1] == 'b' && split.size() == 5)
+			//	setBans(split[1], split[2][0], split[2][1], split[3], split[4], client, serv);
 		}
 		else if (split[1] == client->getName())
 		{

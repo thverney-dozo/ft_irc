@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:19:44 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/16 17:12:01 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/24 11:55:55 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,7 @@ void                Client::setUsername(std::string const &username)    { this->
 void				Client::setConnectionStatus(bool is_connected) 		{ this->is_connected = is_connected; }
 void				Client::addToClientBuffer(const char *buf) 			{ this->client_buf += buf; }
 void				Client::clearClientBuf() 							{ this->client_buf.clear(); }
+void				Client::addInvite(std::string name) { invitelist.push_back(name); }
 
 
 /*void    Client::clear_info()
@@ -138,6 +139,17 @@ void Client::remMod(char mod)
 	size_t pos = mods.find(mod);
 	if (pos != std::string::npos)
 		mods.erase(pos, 1);
+}
+
+bool Client::getInvite(std::string name) 
+{ 
+	std::vector<std::string>::iterator it = invitelist.begin();
+	for (std::vector<std::string>::iterator ite = invitelist.end(); it != ite; it++)
+	{
+		if ((*it) == name)
+			return true;
+	}
+	return false;	
 }
 
 int Client::CheckChannels(std::string name){

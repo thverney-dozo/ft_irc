@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/22 16:58:54 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/24 12:10:43 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,9 +217,9 @@ void	Server::init_commands()
 	this->cmd.insert(std::pair<std::string, Command>("/server", cmd_server));
 	this->cmd.insert(std::pair<std::string, Command>("server", cmd_server));
 	this->cmd.insert(std::pair<std::string, Command>("SERVER", cmd_server));
-	// this->cmd.insert(std::pair<std::string, Command>("/mode", cmd_mode));
-	// this->cmd.insert(std::pair<std::string, Command>("mode", cmd_mode));
-	// this->cmd.insert(std::pair<std::string, Command>("MODE", cmd_mode));
+	 this->cmd.insert(std::pair<std::string, Command>("/mode", cmd_mode));
+	 this->cmd.insert(std::pair<std::string, Command>("mode", cmd_mode));
+	 this->cmd.insert(std::pair<std::string, Command>("MODE", cmd_mode));
 	
 	// PASS
 	
@@ -464,6 +464,7 @@ void Server::createChannel(std::string name, Client *client)
 	channels.push_back(new_chan);
 	new_chan->addClient(client);
 	client->join_channel(new_chan);
+	new_chan->addPremiumClient(client);
 	// client->setCurrentChan(new_chan->getChanName());
 	fdwrite(client->getFd(), ":" + client->getName() + "!localhost JOIN " + name + "\r\n");
 	// fdwrite(client->getFd(), "Channel " + name + " successfully created\n");

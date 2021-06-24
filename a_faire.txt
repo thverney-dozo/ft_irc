@@ -8,4 +8,3 @@ QUIT finie;
 NICK check les messages derreur;
 USER finir la commande propre;
 PART a verifier ???;
-
