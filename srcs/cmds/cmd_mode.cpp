@@ -1,7 +1,7 @@
 #include "Command.hpp"
 #include <cstdlib>
 
-void setMods(std::string name, char sign, char mod, Server *serv)
+void setMods(std::string name, char sign, char mod, Server *serv, Client *client)
 {
 	std::list<Channel*> channels = serv->getChannels();
 	std::list<Channel*>::iterator begin = channels.begin();
@@ -10,7 +10,26 @@ void setMods(std::string name, char sign, char mod, Server *serv)
 		if(name == (*begin)->getChanName())
 			{
 				if (sign == '+' && mod == 'i')
-					(*begin)->setInviteOnly(true);
+				{
+					if ((*begin)->checkPremiumList(client->getName()) == 1)
+						(*begin)->setInviteOnly(true);
+					else
+					{
+						serv->fdwrite(client->getFd(), "Error, you are not a channel operator.\n");
+						return ;
+					}
+					
+				}
+				else if (sign == '-' && mod == 'i')
+				{
+					if ((*begin)->checkPremiumList(client->getName()) == 1)
+						(*begin)->setInviteOnly(false);
+					else
+					{
+						serv->fdwrite(client->getFd(), "Error, you are not a channel operator.\n");
+						return ;
+					}
+				}
 			}
 	}
 }
@@ -19,23 +38,25 @@ void setModsToChan(std::string name, char sign, char mod, std::string param, Cli
 {
 	Channel *chan = serv->getThisChan(name);
 	
-	std::cout << "|commande setmodstochan| |" << name << "| |"<< sign << "| |" << mod << "| |" << param << "|" << std::endl;
+	//name = chan name
+	//sign = sign
+	//mod = mod
+	//param = username
 	std::list<Client*> list = chan->getConnectedClients();
 	std::list<Client*>::iterator it = list.begin();
 	if (mod == 'o')
 	{
-		for (std::list<Client*>::iterator ite = list.end(); it != ite; it++)
+		if ((*it)->getName() == param)
 		{
-			if ((*it)->getName() == param)
+			if (mod == '+')
 			{
-				if ((*it)->getIsOp() == false && sign == '+')
-					(*it)->setOp(true);
-				else if ((*it)->getIsOp() == true && sign == '+')
-					serv->fdwrite(client->getFd(), "Error, user is already chanop.\n");
-				else if ((*it)->getIsOp() == true && sign == '-')
-					(*it)->setOp(false);
-				else if ((*it)->getIsOp() == false && sign == '-')
-					serv->fdwrite(client->getFd(), "Error, user is not a chanop.\n");
+				if (chan->checkPremiumList((*it)->getName()) == 0)
+					chan->addPremiumClient((*it));
+			}
+			else if (mod == '-')
+			{
+				if (chan->checkPremiumList((*it)) == 0)
+					chan->removePremiumClient((*it));
 			}
 		}
 	}
@@ -85,7 +106,7 @@ void cmd_mode(std::vector<std::string> split, Server *serv, Client *client)
 				serv->fdwrite(client->getFd(), "Error, invalid params.\n");
 			if ((split[2][1] == 'p' || split[2][1] == 's' || split[2][1] == 't'
 				|| split[2][1] == 'n' || split[2][1] == 'm' || split[2][1] == 'v' || split[2][1] == 'i') && split.size() == 3)
-					setMods(split[1], split[2][0], split[2][1], serv);
+					setMods(split[1], split[2][0], split[2][1], serv, client);
 			else if ((split[2][1] == 'o' || split[2][1] == 'l' || split[2][1] == 'v' || split[2][1] == 'b') && split.size() == 4)
 				setModsToChan(split[1], split[2][0], split[2][1], split[3], client, serv);
 		//	else if (split[2][1] == 'b' && split.size() == 5)
@@ -95,9 +116,8 @@ void cmd_mode(std::vector<std::string> split, Server *serv, Client *client)
 		{
 			if (split[2][0] != '+' && split[2][0] != '-')
 				serv->fdwrite(client->getFd(), "Error, invalid params.\n");
-			if (split[2][1] == 'i' || split[2][1] == 'o' || split[2][1]== 'w' || split[2][1] == 's')
+			if (split[2][1] == 'o')
 			{
-				char c = split[2][1];
 				if (split[2][0] == '+')
 					client->addMod(c);
 				else
