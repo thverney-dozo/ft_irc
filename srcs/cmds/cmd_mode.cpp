@@ -55,7 +55,7 @@ void setModsToChan(std::string name, char sign, char mod, std::string param, Cli
 			}
 			else if (mod == '-')
 			{
-				if (chan->checkPremiumList((*it)) == 0)
+				if (chan->checkPremiumList((*it)->getName()) == 0)
 					chan->removePremiumClient((*it));
 			}
 		}
@@ -119,9 +119,9 @@ void cmd_mode(std::vector<std::string> split, Server *serv, Client *client)
 			if (split[2][1] == 'o')
 			{
 				if (split[2][0] == '+')
-					client->addMod(c);
+					client->addMod('o');
 				else
-					client->remMod(c);
+					client->remMod('o');
 			}
 		}
 		else
