@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/15 22:20:45 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/24 11:53:54 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/29 12:11:22 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,7 @@ class   Client
         // ***********************************************************************
 
         // **************************** setters **********************************
+		void				removeInvite(std::string name);
 		void				setCurrentChan(std::string const &name);
 		void				addToClientBuffer(const char *buf);
         void				clearClientBuf();

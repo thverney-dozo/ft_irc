@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:19:44 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/24 11:55:55 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/29 12:14:05 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,4 +161,18 @@ int Client::CheckChannels(std::string name){
 			return 0;
 	}
 	return 1;	
+}
+
+void				Client::removeInvite(std::string name)
+{
+	std::list<Channel*> channels = getChanList();
+	std::list<Channel*>::iterator end = channels.end();
+	for (std::list<Channel*>::iterator begin = channels.begin(); begin != end; begin++)
+	{
+		if ((*begin)->getChanName() == name)
+		{
+			channels.erase(begin);
+			return ;
+		}
+	}
 }

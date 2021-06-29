@@ -13,6 +13,7 @@ SRC				= main.cpp Channel.cpp \
 				cmds/cmd_list.cpp \
 				cmds/cmd_part.cpp \
 				cmds/cmd_mode.cpp \
+				cmds/cmd_invite.cpp \
 				cmds/cmd_kick.cpp \
 				cmds/cmd_server.cpp
 

@@ -6,7 +6,7 @@
 /*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/24 17:44:47 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/29 13:02:10 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,9 +223,9 @@ void	Server::init_commands()
 	 this->cmd.insert(std::pair<std::string, Command>("kick", cmd_kick));
 	 this->cmd.insert(std::pair<std::string, Command>("KICK", cmd_kick));
 	 this->cmd.insert(std::pair<std::string, Command>("/kick", cmd_kick));
-	// this->cmd.insert(std::pair<std::string, Command>("invite", cmd_invite));
-	// this->cmd.insert(std::pair<std::string, Command>("/invite", cmd_invite));
-	// this->cmd.insert(std::pair<std::string, Command>("INVITE", cmd_invite));
+	 this->cmd.insert(std::pair<std::string, Command>("invite", cmd_invite));
+	 this->cmd.insert(std::pair<std::string, Command>("/invite", cmd_invite));
+	 this->cmd.insert(std::pair<std::string, Command>("INVITE", cmd_invite));
 	
 	// PASS
 	

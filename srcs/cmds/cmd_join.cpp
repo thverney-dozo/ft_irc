@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_join.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 00:50:36 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/24 16:57:05 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/29 13:10:57 by gaetan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,10 +110,13 @@ void cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 							std::list<Client *> client_list = (*list_begin)->getConnectedClients();
 							std::list<Client *>::iterator client_begin = client_list.begin();
 							for (std::list<Client *>::iterator client_end = client_list.end(); client_end != client_begin; client_begin++)
-								serv->fdwrite((*client_begin)->getFd(), ":" + client->getName() + "!localhost PRIVMSG " + (*begin) + " joined the channel." + "\r\n");
+							{
+								if ((*client_begin)->getName() != client->getName())
+									serv->fdwrite((*client_begin)->getFd(), ":" + client->getName() + "!localhost PRIVMSG " + (*begin) + " joined the channel." + "\r\n");
+							}
 						}
 					}
-					serv->fdwrite(client->getFd(), ":" + client->getName() + "!~" + client->getUsername() +"@localhost JOIN :" + (*begin) + "\r\n");
+					serv->fdwrite(client->getFd(), ":" + client->getName() + "!" + client->getUsername() +"@localhost JOIN :" + (*begin) + "\r\n");
 					std::cout << "Client joined channel : " << (*begin) << std::endl;
 				}
 			}
