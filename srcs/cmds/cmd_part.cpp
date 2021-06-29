@@ -49,7 +49,7 @@ void	cmd_part(std::vector<std::string> split, Server *serv, Client *client)
 			}
 			else
 			// ERR_NOSUCHCHANNEL
-				serv->fdwrite(client->getFd(), "Error: '" + split[1] +  "' no such channel\n");
+				serv->fdwrite(client->getFd(), ":localhost 403 " + client->getName() + " " + split[1] + " :No such channel\r\n");
 		}
 	}
 	// else

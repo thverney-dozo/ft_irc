@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/28 15:19:53 by thverney          #+#    #+#             */
-/*   Updated: 2021/06/29 15:27:18 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/29 15:49:59 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@ void	cmd_nick(std::vector<std::string> split, Server *serv, Client *client)
 				for (std::list<Client*>::iterator clientlist_begin = clientlist.begin(); clientlist_end != clientlist_begin; clientlist_begin++)
 					serv->fdwrite((*clientlist_begin)->getFd(), ":" + client->getName() + "!localhost PRIVMSG " + (*chanlist_begin)->getChanName() + " :" + client->getName() + " changed nickname to " + split[1] + "\r\n");
 			}
-			std::cout << "le nom du client = "<<client->getName()<< std::endl;
 		}
 	}
 }

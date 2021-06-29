@@ -15,7 +15,7 @@ void setMods(std::string name, char sign, char mod, Server *serv, Client *client
 						(*begin)->setInviteOnly(true);
 					else
 					{
-						serv->fdwrite(client->getFd(), "Error, you are not a channel operator.\n");
+						serv->fdwrite(client->getFd(), ":localhost 482 " + client->getName() + " " + name + " :You're not channel operator\r\n");
 						return ;
 					}
 					
@@ -26,7 +26,7 @@ void setMods(std::string name, char sign, char mod, Server *serv, Client *client
 						(*begin)->setInviteOnly(false);
 					else
 					{
-						serv->fdwrite(client->getFd(), "Error, you are not a channel operator.\n");
+						serv->fdwrite(client->getFd(), ":localhost 482 " + client->getName() + " " + name + " :You're not channel operator\r\n");
 						return ;
 					}
 				}
@@ -41,7 +41,7 @@ void setModsToChan(std::string name, char sign, char mod, std::string param, Cli
 		return ;	
 	if (chan->checkPremiumList(client->getName()) == 0)
 	{
-		serv->fdwrite(client->getFd(), "Error, you are not an operator.\n");
+		serv->fdwrite(client->getFd(), ":localhost 482 " + client->getName() + " " + name + " :You're not channel operator\r\n");
 		return ;
 	}
 	//name = chan name
@@ -60,7 +60,7 @@ void setModsToChan(std::string name, char sign, char mod, std::string param, Cli
 				{
 					if ( client->getName() == param)
 					{
-						serv->fdwrite(client->getFd(), "Error, you cannot op yourself.\n");
+						// serv->fdwrite(client->getFd(), "Error, you cannot op yourself.\n");
 						return ;
 					}
 					if (chan->checkPremiumList((*it)->getName()) == 0)
@@ -83,7 +83,7 @@ void setModsToChan(std::string name, char sign, char mod, std::string param, Cli
 				}
 			}
 		}
-		serv->fdwrite(client->getFd(), "Error, this user is not on the channel.\n");
+		serv->fdwrite(client->getFd(), ":localhost 442 " + client->getName() + " " + name + " :You're not on that channel\r\n");
 	}
 /*	else if (mod == 'l')
 	{
@@ -127,7 +127,7 @@ void cmd_mode(std::vector<std::string> split, Server *serv, Client *client)
 		if (serv->checkChannelList(split[1]) == 1)
 		{
 			if (split[2][0] != '+' && split[2][0] != '-')
-				serv->fdwrite(client->getFd(), "Error, invalid params.\n");
+				serv->fdwrite(client->getFd(), ":localhost 461 " + client->getName() + " MODE :Error, invalid params.\r\n");
 			if ((split[2][1] == 'p' || split[2][1] == 's' || split[2][1] == 't'
 				|| split[2][1] == 'n' || split[2][1] == 'm' || split[2][1] == 'v' || split[2][1] == 'i') && split.size() == 3)
 					setMods(split[1], split[2][0], split[2][1], serv, client);
@@ -139,7 +139,7 @@ void cmd_mode(std::vector<std::string> split, Server *serv, Client *client)
 		else if (split[1] == client->getName())
 		{
 			if (split[2][0] != '+' && split[2][0] != '-')
-				serv->fdwrite(client->getFd(), "Error, invalid params.\n");
+				serv->fdwrite(client->getFd(), ":localhost 461 " + client->getName() + " MODE :Error, invalid params.\r\n");
 			if (split[2][1] == 'o')
 			{
 				if (split[2][0] == '+')
@@ -149,6 +149,6 @@ void cmd_mode(std::vector<std::string> split, Server *serv, Client *client)
 			}
 		}
 		else
-			serv->fdwrite(client->getFd(), "Error, wrong usage of MODE command.\n");
+			serv->fdwrite(client->getFd(), ":localhost 461 " + client->getName() + " MODE :Error, invalid params.\r\n");
 	}
 }
