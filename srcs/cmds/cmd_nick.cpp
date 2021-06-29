@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/28 15:19:53 by thverney          #+#    #+#             */
-/*   Updated: 2021/06/24 17:41:04 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/29 13:38:20 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,15 +33,14 @@ void	cmd_nick(std::vector<std::string> split, Server *serv, Client *client)
 				// std::cout << "cls->getName == " << (*cls_begin).second->getName() << "&& split[1]=="<<split[1]<<std::endl;
 				if ((*cls_begin).second->getIsRegister() == true && (*cls_begin).second->getName() == split[1])
 				{
-					// serv->fdwrite(client->getFd(), ":localhost 433 " + client->getName() + " " +  split[1] + " :Nickname is already in use\r\n");
-					// serv->deconnexion(client->getFd());
+					serv->fdwrite(client->getFd(), ":localhost 433 " + client->getName() + " " +  split[1] + " :Nickname is already in use\r\n");
+					serv->deconnexion(client->getFd());
 					return;
 				}
 			}
 
 			if (client->getIsNickSet() == false)
 			{
-				std::cout << "il est la" <<std::endl;
 				serv->fdwrite(client->getFd(), ":random!~" + client->getUsername() + "@localhost NICK :" + split[1] + "\r\n");
 				// serv->fdwrite(client->getFd(), ":" + " * " + "!localhost NICK " + split[1] + "\r\n");
 				client->setNickname(split[1]);

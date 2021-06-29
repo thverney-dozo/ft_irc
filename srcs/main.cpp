@@ -38,7 +38,6 @@ int 	main(int ac, char **av)
 	*/
 	t_pre_parse args = args_parse(ac, av);
 
-	std::cout << "segfault1.1" << std::endl;
 	Server 	server(args.local_port.c_str(),
 				   args.local_password); // all setup in the construction
 	std::cout << "Localport :" << server.getLocalPort() << std::endl;
