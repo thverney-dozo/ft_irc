@@ -66,6 +66,10 @@ void setModsToChan(std::string name, char sign, char mod, std::string param, Cli
 					if (chan->checkPremiumList((*it)->getName()) == 0)
 					{
 						chan->addPremiumClient((*it));
+						std::list<Client*> clist = chan->getConnectedClients();
+						std::list<Client*>::iterator begin = clist.begin();
+						for (std::list<Client*>::iterator end = clist.end(); begin != end; begin++)
+								serv->fdwrite((*begin)->getFd(), ":" + (*it)->getName() + "!localhost PRIVMSG "  + chan->getChanName() +  " became a channel operator." + "\r\n");
 						return ;
 					}
 				}
