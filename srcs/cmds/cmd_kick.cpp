@@ -34,7 +34,6 @@ void	cmd_kick(std::vector<std::string> split, Server *serv, Client *client)
 		}
 		if (split.size() == 4)
 		{
-			std::cout << "WTF" << std::endl;
 			Channel * chan = serv->getThisChan(split[1]);
 			if (chan->checkPremiumList(client->getName()) == 0)
 			{
