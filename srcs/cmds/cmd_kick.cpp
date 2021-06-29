@@ -55,7 +55,7 @@ void	cmd_kick(std::vector<std::string> split, Server *serv, Client *client)
 					serv->fdwrite((*it)->getFd(), ":" + (*it)->getName() + "!localhost PART " + chan->getChanName() + "\r\n");
 					std::list<Client*>::iterator begin = list.begin();
 					for (std::list<Client*>::iterator end = list.end(); begin != end; begin ++)
-						serv->fdwrite((*begin)->getFd(), ":" + split[2] + "!localhost PRIVMSG " + chan->getChanName() + " : got kicked by " + client->getName() + " : " + split[3] +  "\r\n");
+						serv->fdwrite((*begin)->getFd(), ":" + split[2] + "!localhost PRIVMSG " + chan->getChanName() + " :got kicked by " + client->getName() + " : " + split[3] +  "\r\n");
 					return ;
 				}
 			}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/29 13:02:10 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/06/29 15:38:43 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,9 +132,7 @@ int		Server::find_cmd(std::string data, Client *Sender)
 {
 	std::vector<std::string> splited_cmd = ft_split_cmd(data);
 
-	if (splited_cmd[0][0] == ':' && !splited_cmd[1].empty() && this->cmd.find(splited_cmd[1]) != this->cmd.end()) // si un serveur envoie des infos ":nomDuServ /CMD ..."
-		this->cmd.find(splited_cmd[1])->second.exe(splited_cmd, this, Sender); // execute la command si elle existe
-	else if (!splited_cmd[0].empty() && this->cmd.find(splited_cmd[0]) != this->cmd.end())
+	if (!splited_cmd.empty() && !splited_cmd[0].empty() && this->cmd.find(splited_cmd[0]) != this->cmd.end())
 		this->cmd.find(splited_cmd[0])->second.exe(splited_cmd, this, Sender); // execute la command si elle existe
 	else
 		return (0);
@@ -178,8 +176,8 @@ void    Server::receiveFromClient(int fd_i)
 //		fdwrite(Sender->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
 //	else if (Sender->getIsRegister() == false && Sender->getIsUserSet() == false && Sender->getIsNickSet() == true)
 //		fdwrite(Sender->getFd(), "Almost done, now try \n-USER <username> <hostname> <servername> <realname>\n");
-	 if (Sender->getIsRegister() == false && Sender->getIsUserSet() == true && Sender->getIsNickSet() == false)
-		fdwrite(Sender->getFd(), "You need a nickname.\nPlease try NICK command.\n");
+	//  if (Sender->getIsRegister() == false && Sender->getIsUserSet() == true && Sender->getIsNickSet() == false)
+	// 	fdwrite(Sender->getFd(), "You need a nickname.\nPlease try NICK command.\n");
 }
 
 void	Server::init_commands()
@@ -187,9 +185,9 @@ void	Server::init_commands()
 	this->cmd.insert(std::pair<std::string, Command>("/join", cmd_join));
 	this->cmd.insert(std::pair<std::string, Command>("join", cmd_join));
 	this->cmd.insert(std::pair<std::string, Command>("JOIN", cmd_join));
-	this->cmd.insert(std::pair<std::string, Command>("/who", cmd_who));
-	this->cmd.insert(std::pair<std::string, Command>("who", cmd_who));
-	this->cmd.insert(std::pair<std::string, Command>("WHO", cmd_who));
+	// this->cmd.insert(std::pair<std::string, Command>("/who", cmd_who));
+	// this->cmd.insert(std::pair<std::string, Command>("who", cmd_who));
+	// this->cmd.insert(std::pair<std::string, Command>("WHO", cmd_who));
 	this->cmd.insert(std::pair<std::string, Command>("/privmsg", cmd_privmsg));
 	this->cmd.insert(std::pair<std::string, Command>("privmsg", cmd_privmsg));
 	this->cmd.insert(std::pair<std::string, Command>("PRIVMSG", cmd_privmsg));
@@ -214,9 +212,6 @@ void	Server::init_commands()
 	this->cmd.insert(std::pair<std::string, Command>("/list", cmd_list));
 	this->cmd.insert(std::pair<std::string, Command>("list", cmd_list));
 	this->cmd.insert(std::pair<std::string, Command>("LIST", cmd_list));
-	this->cmd.insert(std::pair<std::string, Command>("/server", cmd_server));
-	this->cmd.insert(std::pair<std::string, Command>("server", cmd_server));
-	this->cmd.insert(std::pair<std::string, Command>("SERVER", cmd_server));
 	 this->cmd.insert(std::pair<std::string, Command>("/mode", cmd_mode));
 	 this->cmd.insert(std::pair<std::string, Command>("mode", cmd_mode));
 	 this->cmd.insert(std::pair<std::string, Command>("MODE", cmd_mode));
@@ -281,8 +276,6 @@ void    Server::registration_client(Client *client, std::string const &s)
 		find_cmd(s, Sender);
 	if (client->getIsNickSet() == true && client->getIsUserSet() == true)
 		client->setRegister(true);
-	if (client->getIsRegister() == true)
-		fdwrite(client->getFd(), "Registration done !\n");
 }
 
 // void    Server::registration(Client *client, const char *buf)
@@ -342,6 +335,8 @@ std::vector<std::string>	Server::ft_split_cmd(std::string msg)
 	std::string		            tmp;
     std::string                 whsp(" \t\f\v\n\r");
 
+	if (msg[0] == ' ')
+		return std::vector<std::string>();
 	if (msg.empty())
 		return std::vector<std::string>();
 	if ((pos = msg.find_last_not_of(whsp)) != std::string::npos)

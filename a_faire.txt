@@ -2,9 +2,28 @@ Important : MODES CHAN
 Finir la commande join apres avoir fais les mods, et verif les messages d'erreur pr join.
 
 
-PASS finie;
-PRIVMSG finie;
-QUIT finie;
 NICK check les messages derreur;
 USER finir la commande propre;
 PART a verifier ???;
+
+
+
+
+ne pas envoyer de reponse a NICK ou USER avant d'etre register
+
+
+    AFAIR:
+{
+
+    dire à tous les clients d'un chan quand un client devient operateur
+
+    SEGFAULT en tapant entré
+}
+
+
+
+
+OSEF:
+
+un if dans join qui a une varaible non initialize
+envoyer END OF WHO ou END OF LIST dans tous les cas en reponse du server

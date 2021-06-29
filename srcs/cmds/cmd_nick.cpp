@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/28 15:19:53 by thverney          #+#    #+#             */
-/*   Updated: 2021/06/29 13:38:20 by thverney         ###   ########.fr       */
+/*   Updated: 2021/06/29 15:27:18 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,7 @@ void	cmd_nick(std::vector<std::string> split, Server *serv, Client *client)
 
 			if (client->getIsNickSet() == false)
 			{
-				serv->fdwrite(client->getFd(), ":random!~" + client->getUsername() + "@localhost NICK :" + split[1] + "\r\n");
-				// serv->fdwrite(client->getFd(), ":" + " * " + "!localhost NICK " + split[1] + "\r\n");
+				// serv->fdwrite(client->getFd(), ":random!~" + client->getUsername() + "@localhost NICK :" + split[1] + "\r\n");
 				client->setNickname(split[1]);
 				client->setNickSet(true);
 			}
