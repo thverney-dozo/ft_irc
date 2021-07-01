@@ -9,7 +9,6 @@ PART a verifier ???;
 
 
 
-ne pas envoyer de reponse a NICK ou USER avant d'etre register
 
 
     AFAIR:
@@ -17,7 +16,6 @@ ne pas envoyer de reponse a NICK ou USER avant d'etre register
 
     dire à tous les clients d'un chan quand un client devient operateur
 
-    SEGFAULT en tapant entré
 }
 
 

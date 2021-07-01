@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/29 15:38:43 by thverney         ###   ########.fr       */
+/*   Updated: 2021/07/01 19:29:56 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,8 @@ int     Server::detection_select()
     int ret;
 
     this->cpy_reads = this->reads;
-    this->timeout.tv_sec = 5;
-	this->timeout.tv_usec = 5000;
+    this->timeout.tv_sec = 1;
+	this->timeout.tv_usec = 1000;
     ret = select(this->fd_max + 1, &(this->cpy_reads), 0 , 0, &(this->timeout));
 	// if (ret)
 	// 	std::cout << "Select triggered " << ret << std::endl;
@@ -266,13 +266,13 @@ void	Server::init_commands()
 
 void    Server::registration_client(Client *client, std::string const &s)
 {
-	if (!local_password.empty() && (s.compare(0,4,"PASS") == 0 || s.compare(0,5,"/PASS") == 0 || s.compare(0,5,"/pass") == 0))
+	if (!local_password.empty() && (s.compare(0,4,"PASS") == 0 || s.compare(0,5,"/pass") == 0 || s.compare(0,4,"pass") == 0))
 		find_cmd(s, Sender);
 	if (!local_password.empty() && client->getIsPassSet() == false)
 		return;
 	// 	deconnexion(client->getFd());
-	if (s.compare(0,4,"NICK") == 0 || s.compare(0,5,"/NICK") == 0 || s.compare(0,5,"/nick") == 0
-	|| s.compare(0,4,"USER") == 0 || s.compare(0,5,"/USER") == 0 || s.compare(0,5,"/user") == 0)
+	if (s.compare(0,4,"NICK") == 0 || s.compare(0,4,"nick") == 0 || s.compare(0,5,"/nick") == 0
+	|| s.compare(0,4,"USER") == 0 || s.compare(0,4,"user") == 0 || s.compare(0,5,"/user") == 0)
 		find_cmd(s, Sender);
 	if (client->getIsNickSet() == true && client->getIsUserSet() == true)
 		client->setRegister(true);

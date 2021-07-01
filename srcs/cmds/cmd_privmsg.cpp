@@ -42,6 +42,22 @@ void	cmd_privmsg(std::vector<std::string> split, Server *serv, Client *client)
 	{
 		if ((*it)->getChanName() == split[1])
 		{
+			{
+				std::list<Client*> clientlist = (*it)->getConnectedClients();
+				std::list<Client*>::iterator begin = clientlist.begin();
+				std::list<Client*>::iterator end = clientlist.end();
+				for (; begin != end; begin++)
+				{
+					if (client->getFd() == (*begin)->getFd())
+						break;
+				}
+				if (begin == end)
+				{
+					serv->fdwrite(client->getFd(), ":localhost 404 " + client->getName() + " PRIVMSG " + split[1] +  " :Cannot send to channel\r\n");
+					return ;
+				}
+			}
+
 			std::string message;
 			std::vector<std::string>::iterator ite2 = split.begin();
 			std::vector<std::string>::iterator iter = split.end();
@@ -66,5 +82,8 @@ void	cmd_privmsg(std::vector<std::string> split, Server *serv, Client *client)
 		}
 	}
 	//CHECK IF ITS A USER OR A CHAN, IF ITS A CHAN ->ERR_CANNOTSENDTOCHAN
-	serv->fdwrite(client->getFd(), ":localhost 401 " + client->getName() + " PRIVMSG " + split[1] +  " :No such nick/channel\r\n"); // ERR_NOSUCHNICK
+	if (split[1][0] == '#')
+		serv->fdwrite(client->getFd(), ":localhost 404 " + client->getName() + " PRIVMSG " + split[1] +  " :Cannot send to channel\r\n"); // ERR_CANNOTSENDTOCHAN
+	else
+		serv->fdwrite(client->getFd(), ":localhost 401 " + client->getName() + " PRIVMSG " + split[1] +  " :No such nick/channel\r\n"); // ERR_NOSUCHNICK
 }

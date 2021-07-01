@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sstream>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -120,9 +121,30 @@ void	print_usage()
 t_pre_parse	args_parse(int ac, char **av)
 {
 	if (ac != 2 && ac != 3)
+	{
+		std::cout << "Too many arguments !" << std::endl;
 		print_usage();
+	}
 	t_pre_parse ret;
+	int i = 0;
 
+	while (av[1][i])
+	{
+		if (av[1][i] < '0' || av[1][i] > '9')
+		{
+			std::cout << "TCP/IP port argument must be a integer" << std::endl;
+			print_usage();
+		}
+		i++;
+	}
+	std::string str(av[1]);
+	int into;
+    std::istringstream(str) >> into;
+	if (into < 1024 || into > 49151)
+	{
+		std::cout << "TCP/IP port must be between 1024 and 49151" << std::endl;
+		print_usage();
+	}
 	ret.local_port = av[1];
 	if (ac == 3)
 		ret.local_password = av[2];
