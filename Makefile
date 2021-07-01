@@ -29,7 +29,7 @@ HEADERSFILES    = Server.hpp Client.hpp \
 HEADERS			:= $(addprefix $(INCLUDEDIR), $(HEADERSFILES))
 
 CC          	= clang++
-CFLAGS      	= -Wall -Wextra -Werror -I$(INCLUDEDIR)
+CFLAGS      	= -Wall -Wextra -Werror -std=c++98 -I$(INCLUDEDIR)
 DEBUGFLAGS           = -g3 -fsanitize=address
 
 .PHONY: all clean fclean re

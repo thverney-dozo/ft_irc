@@ -12,7 +12,7 @@ void	cmd_kick(std::vector<std::string> split, Server *serv, Client *client)
 				serv->fdwrite(client->getFd(), "Error, you're not an operator.\n");
 				return ;
 			}
-			if (chan == nullptr)
+			if (chan == NULL)
 			{
 				//ERR_NOSUCHCHAN
 				serv->fdwrite(client->getFd(), "Error, no such channel.\n");

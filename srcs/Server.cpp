@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/07/01 19:29:56 by thverney         ###   ########.fr       */
+/*   Updated: 2021/07/01 19:45:53 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -490,7 +490,7 @@ Channel *Server::getThisChan(std::string name)
 		if(name == (*begin)->getChanName())
 			return (*begin);
 	}
-	return nullptr;
+	return NULL;
 }
 
 int Server::checkChannels(std::string name, Client *client)
