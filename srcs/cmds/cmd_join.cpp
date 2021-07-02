@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_join.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gaetan <gaetan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 00:50:36 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/06/29 13:32:37 by gaetan           ###   ########.fr       */
+/*   Updated: 2021/07/02 14:41:06 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 void cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 {
+	std::cout << "size = [" << split.size() << "]" << std::endl;
 	if (split.size() > 1)
 	{
 		if (split[1][0] == '#')
@@ -62,31 +63,6 @@ void cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 							return;
 						}
 					}
-	/*				if (mods.find('s', 0) != std::string::npos)
-					{
-						serv->fdwrite(client->getFd(), ":localhost 403 " + (*begin) + " :No such channel.\r\n");
-						return;
-					}
-					if (mods.find('l', 0) != std::string::npos)
-					{
-						if (chan->getLimit() == chan->getCurrentUsers())
-							serv->fdwrite(client->getFd(), "Channel is full.\n");
-						else
-						{
-							chan->addClient(client);
-							chan->addUser();
-						}
-					}
-					if (mods.find('b', 0) != std::string::npos)
-					{
-						if (!chan->checkBans(client))
-							serv->fdwrite(client->getFd(), "You are banned from the channel.\n");
-						else
-						{
-							chan->addClient(client);
-							chan->addUser();
-						}
-					}*/
 					//Check if there is a password case and check if the password is right
 					//I dont know if this is mandatory or not
 					//Maybe there is others mods to check;
@@ -124,5 +100,6 @@ void cmd_join(std::vector<std::string> split, Server *serv, Client *client)
 				serv->fdwrite(client->getFd(), ":localhost 403 " + split[1] + " :No such channel.\r\n");
 	}
 	else
-		serv->fdwrite(client->getFd(), ":localhost 403 " + split[1] + " :No such channel.\r\n");
+		serv->fdwrite(client->getFd(), ":localhost 461 JOIN :Not enough parameters\r\n"); //ERR_NEEDMOREPARAMS
+
 }

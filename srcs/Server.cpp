@@ -6,7 +6,7 @@
 /*   By: thverney <thverney@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 02:18:00 by aeoithd           #+#    #+#             */
-/*   Updated: 2021/07/01 19:45:53 by thverney         ###   ########.fr       */
+/*   Updated: 2021/07/02 14:29:46 by thverney         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,42 +24,6 @@ Server::Server(std::string const &local_port, std::string const &local_password)
 	
 	init_commands();
 }
-
-// void	Server::setup_host_connexion()
-// {
-// 	/*
-// 	1. create a socket.
-// 	2. bind* - this is probably be unnecessary because you're the client, not the server.
-// 	3. connect to a server.
-// 	4. send/recv - repeat until we have or receive data
-// 	5. shutdown to end read/write.
-// 	6. close to releases data.
-// 	*/
-// 	struct sockaddr_in host_adr;
-// 	int enable = -1;
-
-// 	check_error((this->host_sock = socket(AF_INET, SOCK_STREAM, 0)), "ERROR host socket");
-// 	check_error(setsockopt(this->host_sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)), "host_sock can't be used");
-// 	host_adr.sin_family = AF_INET;
-//   	host_adr.sin_port = htons(atoi(this->host_port.c_str()));
-//   	struct hostent *host_info = gethostbyname(this->host_ip.c_str());
-	
-// 	// A REMPLACER PAR UNE FONCTION AUTORISEE !!!!!!!!
-// 	memcpy(&host_adr.sin_addr, host_info->h_addr_list[0], host_info->h_length);
-// 	// A REMPLACER PAR UNE FONCTION AUTORISEE !!!!!!!!
-	
-// 	check_error(connect(this->host_sock, (struct sockaddr *)&host_adr, sizeof(host_adr)), "ERROR host connect");
-// 	fcntl(this->host_sock, F_SETFL, O_NONBLOCK);	
-// 	send(this->host_sock, ":myserv USER thio0247 bahhjsp okbg :theo gaetan\n:myserv NICK thio0247 bahhjsp okbg :theo gaetan\n:myserv SERVER test.oulu.fi 1 :[tolsun.oulu.fi]\n", 145, 0);
-
-// 	Client *new_client = new Client(this->host_sock, host_adr, sizeof(host_adr));
-// 	new_client->setIsServer(true); 
-// 	// this->clients.push_back(new_client);
-// 	this->clients.insert(std::pair<int, Client*>(this->host_sock, new_client));
-// 	FD_SET(this->host_sock, &(this->reads));
-// 	if (this->fd_max < this->host_sock)
-// 		this->fd_max = this->host_sock;
-// }
 
 Server::~Server()
 {}
@@ -92,8 +56,6 @@ int     Server::detection_select()
     this->timeout.tv_sec = 1;
 	this->timeout.tv_usec = 1000;
     ret = select(this->fd_max + 1, &(this->cpy_reads), 0 , 0, &(this->timeout));
-	// if (ret)
-	// 	std::cout << "Select triggered " << ret << std::endl;
     return ret;
 }
 
@@ -160,8 +122,8 @@ void    Server::receiveFromClient(int fd_i)
 	for (std::vector<std::string>::iterator data_cursor = splited_by_line_recv_data.begin(); data_cursor != data_end; ++data_cursor)
 	{
 		std::string dat = (*data_cursor);
-		dat.erase(dat.size() - 1, 1);
-		std::cout << "\n->data to process: " << "[" << dat << "]" << std::endl;
+		// dat.erase(dat.size() - 1, 1);
+		std::cout << "\n->data to process: " << dat << std::endl;
 		if (Sender->getIsRegister() == false)
 				registration_client(Sender, (*data_cursor)); // registration(Sender, (*data_cursor).c_str());
 		else if (find_cmd((*data_cursor), Sender)) // return if cmd was found and launched
@@ -172,12 +134,6 @@ void    Server::receiveFromClient(int fd_i)
 			clientWriteOnChannel(Sender->getCurrentChan(), (*data_cursor), Sender);
 		}
 	}
-//	if (Sender->getIsRegister() == false && Sender->getIsUserSet() == false && Sender->getIsNickSet() == false)
-//		fdwrite(Sender->getFd(), "You need to register before anything else.\nTry those commands:\n-USER\n-NICK\n");
-//	else if (Sender->getIsRegister() == false && Sender->getIsUserSet() == false && Sender->getIsNickSet() == true)
-//		fdwrite(Sender->getFd(), "Almost done, now try \n-USER <username> <hostname> <servername> <realname>\n");
-	//  if (Sender->getIsRegister() == false && Sender->getIsUserSet() == true && Sender->getIsNickSet() == false)
-	// 	fdwrite(Sender->getFd(), "You need a nickname.\nPlease try NICK command.\n");
 }
 
 void	Server::init_commands()
@@ -206,9 +162,9 @@ void	Server::init_commands()
 	this->cmd.insert(std::pair<std::string, Command>("/part", cmd_part));
 	this->cmd.insert(std::pair<std::string, Command>("part", cmd_part));
 	this->cmd.insert(std::pair<std::string, Command>("PART", cmd_part));
-	this->cmd.insert(std::pair<std::string, Command>("/topic", cmd_topic));
-	this->cmd.insert(std::pair<std::string, Command>("topic", cmd_topic));
-	this->cmd.insert(std::pair<std::string, Command>("TOPIC", cmd_topic));
+	// this->cmd.insert(std::pair<std::string, Command>("/topic", cmd_topic));
+	// this->cmd.insert(std::pair<std::string, Command>("topic", cmd_topic));
+	// this->cmd.insert(std::pair<std::string, Command>("TOPIC", cmd_topic));
 	this->cmd.insert(std::pair<std::string, Command>("/list", cmd_list));
 	this->cmd.insert(std::pair<std::string, Command>("list", cmd_list));
 	this->cmd.insert(std::pair<std::string, Command>("LIST", cmd_list));

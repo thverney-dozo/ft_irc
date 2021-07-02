@@ -14,8 +14,8 @@ void	cmd_kick(std::vector<std::string> split, Server *serv, Client *client)
 			}
 			if (chan == NULL)
 			{
-				//ERR_NOSUCHCHAN
-				serv->fdwrite(client->getFd(), "Error, no such channel.\n");
+				serv->fdwrite(client->getFd(), ":localhost 403 KICK " + split[1] + " :Error, no such channel.\r\n"); // ERR_NOSUCHCHAN
+
 				return;
 			}
 			std::list<Client*> list = chan->getConnectedClients();
@@ -28,9 +28,11 @@ void	cmd_kick(std::vector<std::string> split, Server *serv, Client *client)
 					std::list<Client*>::iterator begin = list.begin();
 					for (std::list<Client*>::iterator end = list.end(); begin != end; begin ++)
 						serv->fdwrite((*begin)->getFd(), ":" + split[2] + "!localhost PRIVMSG " + chan->getChanName() + " : got kicked by " + client->getName() + "." +  "\r\n");
+					chan->removeClient((*it));
 					return ;
 				}
 			}
+			
 		}
 		if (split.size() == 4)
 		{
@@ -42,8 +44,7 @@ void	cmd_kick(std::vector<std::string> split, Server *serv, Client *client)
 			}
 			if (chan == 0)
 			{
-				//ERR_NOSUCHCHAN
-				serv->fdwrite(client->getFd(), "Error, no such channel.\n");
+				serv->fdwrite(client->getFd(), ":localhost 403 KICK " + split[1] + " :Error, no such channel.\r\n"); // ERR_NOSUCHCHAN
 				return;
 			}
 			std::list<Client*> list = chan->getConnectedClients();
@@ -56,12 +57,12 @@ void	cmd_kick(std::vector<std::string> split, Server *serv, Client *client)
 					std::list<Client*>::iterator begin = list.begin();
 					for (std::list<Client*>::iterator end = list.end(); begin != end; begin ++)
 						serv->fdwrite((*begin)->getFd(), ":" + split[2] + "!localhost PRIVMSG " + chan->getChanName() + " :got kicked by " + client->getName() + " : " + split[3] +  "\r\n");
+					chan->removeClient((*it));
 					return ;
 				}
 			}
 		}
 	}
 	else
-		serv->fdwrite(client->getFd(), "Bite.\n");
-		//ERR_NEEDMOREPARAMS
+		serv->fdwrite(client->getFd(), ":localhost 461 KICK :Not enough parameters\r\n"); //ERR_NEEDMOREPARAMS
 }

@@ -122,7 +122,7 @@ t_pre_parse	args_parse(int ac, char **av)
 {
 	if (ac != 2 && ac != 3)
 	{
-		std::cout << "Too many arguments !" << std::endl;
+		std::cout << "Error nb of arguments !" << std::endl;
 		print_usage();
 	}
 	t_pre_parse ret;
